@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lifelogging Usability Test</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Lifelogging Usability Test</h1>
+
+    <label>Participant ID:</label>
+    <input id="pid" type="text" placeholder="เช่น P01">
+
+    <label>เลือกชุดการทดลอง (Latin order):</label>
+    <select id="latinOrder">
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+    </select>
+
+    <h3>Test Signals (กรุณาเปิดระบบเสียงและระบบสั่น)</h3>
+    <div class="row">
+      <button onclick="testBeep()">🔊 Test Beep Sound</button>
+      <button onclick="testVibrate()">📳 Test Vibrate</button>
+    </div>
+
+    <p class="note">
+      ⚠️ ถ้าไม่มีเสียงหรือไม่สั่น:<br>
+      - ตรวจสอบว่าไม่ได้อยู่ในโหมดเงียบ (Silent)<br>
+      - เปิดระดับเสียง Media Volume ให้ดัง<br>
+      - เปิดโหมดสั่นใน Settings
+    </p>
+
+    <button id="startBtn" class="primary">▶ Start Scenario 1</button>
+  </div>
+</body>
+</html>

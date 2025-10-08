@@ -1,0 +1,59 @@
+body {
+  font-family: "Segoe UI", sans-serif;
+  background: #f7f9fc;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 420px;
+  margin: 30px auto;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+button {
+  padding: 10px 20px;
+  margin: 8px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.primary { background: royalblue; color: white; }
+.secondary { background: #ccc; }
+.action { background: #7ef7a6; font-size: 20px; }
+
+.note {
+  font-size: 13px;
+  color: #555;
+  text-align: left;
+  margin: 10px 0;
+}
+
+#ledBox {
+  width: 200px;
+  height: 200px;
+  margin: 25px auto;
+  background: black;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 48px;
+}
+
+/* กระพริบไฟ */
+@keyframes blink {
+  0%, 50%, 100% { background: black; }
+  25%, 75% { background: limegreen; }
+}
+
+.blinking {
+  animation: blink 0.7s linear;
+}
