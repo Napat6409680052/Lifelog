@@ -32,6 +32,19 @@ document.addEventListener('DOMContentLoaded', () => {
   if (document.getElementById('ledBox')) runTrial();
 });
 
+// ฟังก์ชันทดสอบเสียง
+function testBeep() {
+  // สร้างอ็อบเจกต์เสียงจากไฟล์ beep.mp4
+  const audio = new Audio("beep.mp4");
+  audio.play()
+    .then(() => console.log("Beep sound playing..."))
+    .catch(err => {
+      console.warn("ไม่สามารถเล่นเสียงได้:", err);
+      alert("⚠️ กรุณาแตะหน้าจอก่อน แล้วกดปุ่มอีกครั้ง เพื่ออนุญาตให้เล่นเสียง");
+    });
+}
+
+
 function startScenario1() {
   const pid = document.getElementById('pid').value.trim();
   const order = document.getElementById('latinOrder').value;
