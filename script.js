@@ -1,3 +1,13 @@
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function() {
+    navigator.serviceWorker
+      .register("service-worker.js")
+      .then(() => console.log("Service Worker Registered"))
+      .catch(err => console.log("SW reg failed: ", err));
+  });
+}
+
+
 // ====== HOME PAGE ======
 function testBeep() {
   const audio = new Audio('beep.mp3');
