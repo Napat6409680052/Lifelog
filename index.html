@@ -1,42 +1,71 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lifelogging Usability Test</title>
-  <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
-  <script defer src="script.js"></script>
+  <link rel="stylesheet" href="style.css" />
+  <script src="script.js" defer></script>
 </head>
+
 <body>
   <div class="container">
+
     <h1>Lifelogging Usability Test</h1>
 
-    <label>Participant ID:</label>
-    <input id="pid" type="text" placeholder="เช่น P01">
+    <label for="pid">Participant ID :</label>
+    <input id="pid" type="text" placeholder="เช่น 01" />
 
-    <label>เลือกชุดการทดลอง (Latin order):</label>
+    <p><strong>เลือกชุดการทดสอบ (1–4) :</strong></p>
     <select id="latinOrder">
-      <option value="1">1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-      <option value="4">4</option>
+      <option value="1">1 (LED → Beep → Vibrate → None)</option>
+      <option value="2">2 (Beep → Vibrate → None → LED)</option>
+      <option value="3">3 (Vibrate → None → LED → Beep)</option>
+      <option value="4">4 (None → LED → Beep → Vibrate)</option>
     </select>
 
     <h3>Test Signals (กรุณาเปิดระบบเสียงและระบบสั่น)</h3>
     <div class="row">
-      <button onclick="testBeep()">🔊 Test Beep Sound</button>
-      <button onclick="testVibrate()">📳 Test Vibrate</button>
+      <button onclick="testBeep()" class="soundBtn">🔊 Beep Sound</button>
+      <button onclick="testVibrate()" class="vibBtn">📳 Test Vibrate</button>
     </div>
 
     <p class="note">
-      ⚠️ ถ้าไม่มีเสียงหรือไม่สั่น:<br>
-      - ตรวจสอบว่าไม่ได้อยู่ในโหมดเงียบ (Silent)<br>
-      - เปิดระดับเสียง Media Volume ให้ดัง<br>
-      - เปิดโหมดสั่นใน Settings
+      ⚠️ หมายเหตุ : ถ้าไม่มีเสียงหรือไม่สั่น<br />
+      → ตรวจสอบว่ามือถือไม่อยู่ในโหมดเงียบ (Silent)<br />
+      → ไม่มีการเชื่อมต่อ Bluetooth หูฟัง หรืออุปกรณ์เสียงอื่น<br />
+      → เปิดระดับเสียง Media Volume ให้อยู่ในค่ากลางหรือสูงสุด
     </p>
 
+    <h3>Instructions (คำแนะนำ)</h3>
+    <div class="instructions">
+
+      <p><strong>Scenario 1 – Awareness Test</strong></p>
+      <ol>
+        <li>
+          ให้มองจุด Focus <span class="fix">( + )</span> ที่กลางหน้าจอ<br />
+          (เพื่อเตรียมความพร้อมรอสิ่งเร้า)
+        </li>
+        <li>
+          เมื่อมีสิ่งเร้า (ไฟ / เสียง / สั่น) <br />
+          → ให้กดปุ่ม <button class="openBtn">Open(เปิด)</button> ให้เร็วที่สุด
+        </li>
+      </ol>
+
+      <p class="note2">
+        ⚠️ หมายเหตุ : หากไม่มีสิ่งเร้าใด ๆ ปรากฏขึ้น<br />
+        ให้คงโฟกัสไว้ที่จุด Focus (ห้ามกดปุ่ม) จนจบสิ่งเร้านั้น
+      </p>
+
+      <p class="note2">
+        ระบบจะสุ่มแสดงสิ่งเร้า 4 แบบ คือ <strong>LED / Beep / Vibrate / None</strong><br />
+        แต่ละแบบจะปรากฏ 20 ครั้ง (รวม 80 trials ต่อผู้เข้าร่วม 1 คน)
+      </p>
+    </div>
+
     <button id="startBtn" class="primary">▶ Start Scenario 1</button>
+
   </div>
 </body>
 </html>
