@@ -117,13 +117,30 @@ async function runTrial() {
 
 function showStimulus(type) {
   const box = document.getElementById('ledBox');
-  if (type === 'LED') box.classList.add('blinking');
-  if (type === 'Beep') new Audio('beep.mp3').play();
-  if (type === 'Vibrate') navigator.vibrate(700);
+  const beep1t = new Audio('beep1t.mp3');
+  
+  if (type === 'LED') {
+    box.classList.add('blinking');
+  }
+
+  // ✅ ใช้เสียงใหม่สำหรับ condition: sound
+  if (type === 'Beep') {
+    beep1t.currentTime = 0;  // reset ให้เริ่มต้นทุกครั้ง
+    beep1t.play().catch(err => console.warn("เสียงไม่เล่น:", err));
+    box.style.background = 'gray'; // สีพื้นกลางเหมือนตอน LED กระพริบ
+  }
+
+  if (type === 'Vibrate') {
+    navigator.vibrate(700);
+  }
+
 }
 function clearStimulus() {
-  document.getElementById('ledBox').classList.remove('blinking');
+  const box = document.getElementById('ledBox');
+  box.classList.remove('blinking'); // เอา animation กระพริบออก
+  box.style.background = 'black';   // คืนพื้นหลังกลับเป็นสีดำ (baseline)
 }
+
 function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 function rand(min, max) { return Math.random() * (max - min) + min; }
 
