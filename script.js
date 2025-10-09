@@ -176,9 +176,36 @@ function finishCondition() {
   // 3. เซฟกลับเข้า localStorage
   localStorage.setItem('allResults', JSON.stringify(allResults));
 
-  // 4. ไปหน้า summary
-  window.location.href = 'summary.html';
+  // 4. ตรวจสอบลำดับ Latin order ว่าหน้าต่อไปคืออะไร
+  const order = localStorage.getItem('order') || '1';
+  const latinOrders = {
+    '1': ['LED', 'Beep', 'Vibrate', 'None'],
+    '2': ['Beep', 'Vibrate', 'None', 'LED'],
+    '3': ['Vibrate', 'None', 'LED', 'Beep'],
+    '4': ['None', 'LED', 'Beep', 'Vibrate']
+  };
+  const currentCond = condition;
+  const nextCond = (() => {
+    const seq = latinOrders[order];
+    const idx = seq.indexOf(currentCond);
+    return idx >= 0 && idx < seq.length - 1 ? seq[idx + 1] : null;
+  })();
+
+  // 5. ไปหน้าต่อไปตาม condition
+  if (nextCond) {
+    switch (nextCond) {
+      case 'LED': window.location.href = 'scenario1.html'; break;
+      case 'Beep': window.location.href = 'sound.html'; break;
+      case 'Vibrate': window.location.href = 'vibrate.html'; break;
+      case 'None': window.location.href = 'none.html'; break;
+      default: window.location.href = 'summary.html';
+    }
+  } else {
+    // ถ้าไม่มี condition ต่อ → ไป summary
+    window.location.href = 'summary.html';
+  }
 }
+
 
 
 // ====== SUMMARY PAGE ======
