@@ -179,16 +179,16 @@ function recordResponse() {
 }
 
 function finishCondition() {
-  // 1. ดึงข้อมูลผลรวมทั้งหมดที่เคยมี
+  // 1. รวมผลการทดสอบรอบนี้เข้ากับข้อมูลทั้งหมด
   const allResults = JSON.parse(localStorage.getItem('allResults') || '[]');
-
-  // 2. เพิ่มข้อมูลจากรอบนี้เข้าไป
   allResults.push(...trials);
-
-  // 3. เซฟกลับเข้า localStorage
   localStorage.setItem('allResults', JSON.stringify(allResults));
 
-  // 4. ตรวจสอบลำดับ Latin order ว่าหน้าต่อไปคืออะไร
+  // 2. รีเซ็ตค่าการทดลองในรอบถัดไป
+  trials = [];
+  currentTrial = 0;
+
+  // 3. ตรวจสอบลำดับ Latin order
   const order = localStorage.getItem('order') || '1';
   const latinOrders = {
     '1': ['LED', 'Beep', 'Vibrate', 'None'],
@@ -196,27 +196,32 @@ function finishCondition() {
     '3': ['Vibrate', 'None', 'LED', 'Beep'],
     '4': ['None', 'LED', 'Beep', 'Vibrate']
   };
-  const currentCond = condition;
-  const nextCond = (() => {
-    const seq = latinOrders[order];
-    const idx = seq.indexOf(currentCond);
-    return idx >= 0 && idx < seq.length - 1 ? seq[idx + 1] : null;
-  })();
+  const seq = latinOrders[order];
+  const idx = seq.indexOf(condition);
+  const nextCond = idx >= 0 && idx < seq.length - 1 ? seq[idx + 1] : null;
 
-  // 5. ไปหน้าต่อไปตาม condition
+  // 4. ถ้ามี condition ต่อไป
   if (nextCond) {
-    switch (nextCond) {
-      case 'LED': window.location.href = 'scenario1.html'; break;
-      case 'Beep': window.location.href = 'sound.html'; break;
-      case 'Vibrate': window.location.href = 'vibrate.html'; break;
-      case 'None': window.location.href = 'none.html'; break;
-      default: window.location.href = 'summary.html';
-    }
+    condition = nextCond;
+    const condLabel = document.getElementById('condLabel');
+    condLabel.textContent = `Condition: ${condition}`;
+    document.getElementById('feedback').textContent = '';
+    document.getElementById('trialLabel').textContent = '';
+    document.getElementById('fixation').textContent = '+';
+
+    // แสดงข้อความพักสั้น ๆ ก่อนเริ่ม condition ต่อไป
+    condLabel.style.color = '#007bff';
+    condLabel.textContent = `พักสั้นๆ... ต่อไปคือ Condition: ${condition}`;
+    delay(2000).then(() => {
+      condLabel.textContent = `Condition: ${condition}`;
+      runTrial();
+    });
   } else {
-    // ถ้าไม่มี condition ต่อ → ไป summary
+    // 5. ถ้าไม่มี condition ต่อ → ไป summary
     window.location.href = 'summary.html';
   }
 }
+
 
 
 

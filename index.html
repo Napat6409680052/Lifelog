@@ -69,34 +69,6 @@
     <button id="startBtn" class="primary">▶ Start Scenario 1</button>
 
   </div>
-   <script>
-    // ดึงค่าที่เลือกจากหน้า home
-    const pid = localStorage.getItem('pid') || ('soundtest-' + Date.now());
-    const order = localStorage.getItem('order') || '1';
-
-    // === Latin Square Mapping ===
-    // เช่น order 1–4 จะสลับลำดับ condition 4 แบบ
-    const latinOrders = {
-      '1': ['LED', 'Beep', 'Vibrate', 'None'],
-      '2': ['Beep', 'Vibrate', 'None', 'LED'],
-      '3': ['Vibrate', 'None', 'LED', 'Beep'],
-      '4': ['None', 'LED', 'Beep', 'Vibrate']
-    };
-
-    // ดึงลำดับตามที่เลือกไว้
-    const selectedOrder = latinOrders[order] || latinOrders['1'];
-    console.log('Latin order:', selectedOrder);
-
-    // ตั้งค่า condition ปัจจุบันให้เป็น "Beep" (เฉพาะหน้านี้)
-    window.condition = 'Beep';
-    localStorage.setItem('pid', pid);
-    localStorage.setItem('order', order);
-
-    // แสดงชื่อ condition บนหน้าจอ
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('condLabel').textContent = `Condition: ${condition} (ชุด ${order})`;
-      if (typeof runTrial === 'function') runTrial();
-    });
-  </script>
+   
 </body>
 </html>
