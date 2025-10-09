@@ -117,29 +117,41 @@ async function runTrial() {
 
 function showStimulus(type) {
   const box = document.getElementById('ledBox');
-  const beep1t = new Audio('beep1t.mp3');
-  
+  const beepSound = new Audio('beep1t.mp3'); // ใช้เสียง beep1t เฉพาะ condition: Beep
+
+  // รีเซ็ตพื้นหลังทุกครั้งก่อนแสดงสิ่งเร้า
+  box.style.background = 'black';
+
   if (type === 'LED') {
-    box.classList.add('blinking');
+    // ใช้ไฟสีเขียวแทน blink เดิม
+    box.style.background = 'lime';
   }
 
-  // ✅ ใช้เสียงใหม่สำหรับ condition: sound
   if (type === 'Beep') {
-    beep1t.currentTime = 0;  // reset ให้เริ่มต้นทุกครั้ง
-    beep1t.play().catch(err => console.warn("เสียงไม่เล่น:", err));
-    box.style.background = 'gray'; // สีพื้นกลางเหมือนตอน LED กระพริบ
+    // เล่นเสียง beep1t.mp3 1 ครั้ง + สีพื้นฟ้า
+    beepSound.currentTime = 0;
+    beepSound.play().catch(err => console.warn('ไม่สามารถเล่นเสียงได้:', err));
+    box.style.background = 'dodgerblue';
   }
 
   if (type === 'Vibrate') {
-    navigator.vibrate(700);
+    // สั่น + เปลี่ยนพื้นหลังเป็นสีเหลือง
+    if (navigator.vibrate) navigator.vibrate(700);
+    box.style.background = '#ffe89a';
   }
 
+  if (type === 'None') {
+    // ไม่มีสิ่งเร้า → สีพื้นไม่เปลี่ยน
+    box.style.background = 'black';
+  }
 }
+
+
 function clearStimulus() {
   const box = document.getElementById('ledBox');
-  box.classList.remove('blinking'); // เอา animation กระพริบออก
-  box.style.background = 'black';   // คืนพื้นหลังกลับเป็นสีดำ (baseline)
+  box.style.background = 'black'; // รีเซ็ตพื้นหลังกลับเป็นสีดำ
 }
+
 
 function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 function rand(min, max) { return Math.random() * (max - min) + min; }
