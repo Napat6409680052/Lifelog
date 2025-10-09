@@ -92,7 +92,7 @@ button {
 /* ไฟกระพริบ (Stimulus LED) */
 .blinking {
   background: lime; /* สีเขียวเวลา LED ติด */
-  animation: blink 0.3s alternate 2; /* กระพริบเร็ว 2 ครั้ง */
+  animation: blink 0.9s alternate 2; /* กระพริบเร็ว 2 ครั้ง */
 }
 
 @keyframes blink {
