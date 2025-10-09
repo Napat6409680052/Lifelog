@@ -78,17 +78,23 @@ async function runTrial() {
   fix.textContent = '+'; // แสดงเครื่องหมาย + เป็นสัญลักษณ์ให้เพ่ง (fixation)
   box.style.background = #AEEFFF; // พื้นหลัง stimulus เป็นสีดำ (ยังไม่แสดงสิ่งเร้า)
 
+  // — Phase 1: Fixation —
+  // หน่วงเวลาแบบสุ่ม 500–800 ms ให้ผู้เข้าร่วมเพ่งไปที่จุดโฟกัส + เพื่อควบคุมสายตา/ความพร้อม
   await delay(rand(500, 800)); // Fixation
   fix.textContent = '';
 
+  // — Phase 2: Foreperiod —
+  // หน่วงเวลานำ (foreperiod) แบบสุ่ม 500–1500 ms เพื่อลดการเดาเวลา (anticipation)
   await delay(rand(500, 1500)); // Foreperiod
 
-  // Stimulus ON
+ // — Phase 3: Stimulus ON —
+  // บันทึกเวลาที่เริ่มแสดงสิ่งเร้าด้วย high-resolution timer (หน่วย ms ลอยตัว)
   startTime = performance.now();
   showStimulus(condition);
   await delay(700);
   clearStimulus();
 
+ // — Phase 4: Response Window —
   // รอผู้ใช้ตอบภายใน 2.5s
   await delay(2500);
   if (!trials[currentTrial]) {
