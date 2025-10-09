@@ -150,25 +150,46 @@ function recordResponse() {
 }
 
 function finishCondition() {
-  localStorage.setItem('trialData', JSON.stringify(trials));
+  // 1. ดึงข้อมูลผลรวมทั้งหมดที่เคยมี
+  const allResults = JSON.parse(localStorage.getItem('allResults') || '[]');
+
+  // 2. เพิ่มข้อมูลจากรอบนี้เข้าไป
+  allResults.push(...trials);
+
+  // 3. เซฟกลับเข้า localStorage
+  localStorage.setItem('allResults', JSON.stringify(allResults));
+
+  // 4. ไปหน้า summary
   window.location.href = 'summary.html';
 }
 
+
 // ====== SUMMARY PAGE ======
 function downloadCSV() {
-  const data = JSON.parse(localStorage.getItem('trialData'));
-  const rows = ['pid,condition,trial,rt_sec,correct',
-    ...data.map(d => `${d.pid},${d.condition},${d.trial},${d.rt_sec},${d.correct}`)
-  ].join('\n');
-  const blob = new Blob([rows], { type: 'text/csv' });
+  const allData = JSON.parse(localStorage.getItem('allResults') || '[]');
+  if (allData.length === 0) {
+    alert("ยังไม่มีข้อมูลรวมให้ดาวน์โหลด");
+    return;
+  }
+
+  const header = 'pid,condition,trial,rt_sec,correct';
+  const rows = allData.map(d => `${d.pid},${d.condition},${d.trial},${d.rt_sec},${d.correct}`);
+  const csv = [header, ...rows].join('\n');
+
+  const blob = new Blob([csv], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'scenario1_results.csv';
+  a.download = 'all_results.csv';
   a.click();
 }
 
+
 function restart() {
-  localStorage.clear();
+  // เคลียร์เฉพาะค่าชั่วคราว ไม่ลบ allResults
+  localStorage.removeItem('pid');
+  localStorage.removeItem('order');
+  localStorage.removeItem('trialData');
   window.location.href = 'index.html';
 }
+
