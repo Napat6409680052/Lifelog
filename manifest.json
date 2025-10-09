@@ -1,4 +1,6 @@
-{
+//PWA --> add to home screen
+
+{  
   "name": "Lifelogging Usability Test",
   "short_name": "Lifelogging",
   "start_url": "index.html",

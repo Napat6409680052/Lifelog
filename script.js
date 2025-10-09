@@ -10,7 +10,7 @@ if ("serviceWorker" in navigator) {
 
 // ====== HOME PAGE ======
 function testBeep() {
-  const audio = new Audio('beep.mp3');
+  const audio = new Audio('beep.mp4');
   audio.play().catch(() => alert('⚠️ กรุณาเปิดเสียงโทรศัพท์'));
 }
 function testVibrate() {
