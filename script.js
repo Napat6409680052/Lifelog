@@ -10,7 +10,7 @@ if ("serviceWorker" in navigator) {
 
 // ====== HOME PAGE ======
 function testBeep() {
-  const audio = new Audio('beep.mp4');
+  const audio = new Audio('beep.mp3');
   audio.play().catch(() => alert('⚠️ กรุณาเปิดเสียงโทรศัพท์'));
 }
 function testVibrate() {
@@ -34,8 +34,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ฟังก์ชันทดสอบเสียง
 function testBeep() {
-  // สร้างอ็อบเจกต์เสียงจากไฟล์ beep.mp4
-  const audio = new Audio("beep.mp4");
+  // สร้างอ็อบเจกต์เสียงจากไฟล์ beep.mp3
+  const audio = new Audio("beep.mp3");
   audio.play()
     .then(() => console.log("Beep sound playing..."))
     .catch(err => {
@@ -76,7 +76,7 @@ async function runTrial() {
   
   // ตั้งค่าหน้าจอก่อนเริ่มไตรอัล
   fix.textContent = '+'; // แสดงเครื่องหมาย + เป็นสัญลักษณ์ให้เพ่ง (fixation)
-  box.style.background = #AEEFFF; // พื้นหลัง stimulus เป็นสีดำ (ยังไม่แสดงสิ่งเร้า)
+  box.style.background = 'black'; // พื้นหลัง stimulus เป็นสีดำ (ยังไม่แสดงสิ่งเร้า)
 
   // — Phase 1: Fixation —
   // หน่วงเวลาแบบสุ่ม 500–800 ms ให้ผู้เข้าร่วมเพ่งไปที่จุดโฟกัส + เพื่อควบคุมสายตา/ความพร้อม
@@ -97,6 +97,8 @@ async function runTrial() {
  // — Phase 4: Response Window —
   // รอผู้ใช้ตอบภายใน 2.5s
   await delay(2500);
+
+
   if (!trials[currentTrial]) {
     trials.push({
       pid: localStorage.getItem('pid'),
