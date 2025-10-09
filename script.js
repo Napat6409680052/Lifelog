@@ -76,7 +76,7 @@ async function runTrial() {
   
   // ตั้งค่าหน้าจอก่อนเริ่มไตรอัล
   fix.textContent = '+'; // แสดงเครื่องหมาย + เป็นสัญลักษณ์ให้เพ่ง (fixation)
-  box.style.background = 'AEEFFF'; // พื้นหลัง stimulus เป็นสีดำ (ยังไม่แสดงสิ่งเร้า)
+  box.style.background = #AEEFFF; // พื้นหลัง stimulus เป็นสีดำ (ยังไม่แสดงสิ่งเร้า)
 
   await delay(rand(500, 800)); // Fixation
   fix.textContent = '';
