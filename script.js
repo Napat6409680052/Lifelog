@@ -14,7 +14,7 @@ function testBeep() {
   audio.play().catch(() => alert('⚠️ กรุณาเปิดเสียงโทรศัพท์'));
 }
 function testVibrate() {
-  if (navigator.vibrate) navigator.vibrate(400);
+  if (navigator.vibrate) navigator.vibrate(600);
   else alert('❌ อุปกรณ์นี้ไม่รองรับการสั่น');
 }
 
@@ -55,24 +55,28 @@ function startScenario1() {
 }
 
 // ====== SCENARIO PAGE ======
-let trials = [];
-let currentTrial = 0;
-const totalTrials = 20;
-let startTime = 0;
+let trials = []; // เก็บผลแต่ละ trial
+let currentTrial = 0; // นับรอบการทดลอง
+const totalTrials = 20; // รอบทั้งหมดต่อ condition
+let startTime = 0; // เวลาเริ่ม stimulus
 const conditions = ['LED', 'Beep', 'Vibrate', 'None'];
 let condition = conditions[0]; // เริ่มจาก LED ก่อน
 
 async function runTrial() {
-  const fix = document.getElementById('fixation');
+  const fix = document.getElementById('fixation'); // จุดโฟกัส (fixation cross) แสดงเครื่องหมาย +
   const box = document.getElementById('ledBox');
-  const condLabel = document.getElementById('condLabel');
-  const trialLabel = document.getElementById('trialLabel');
-  const feedback = document.getElementById('feedback');
+  const condLabel = document.getElementById('condLabel'); // สถานะการทดลอง (condition)
+  const trialLabel = document.getElementById('trialLabel'); // ป้ายบอกลำดับ trial
+  const feedback = document.getElementById('feedback'); // พื้นที่แสดงฟีดแบ็กหลังตอบ
+  
+  // อัปเดตข้อความส่วนหัวให้ตรงกับสถานะปัจจุบัน
   condLabel.textContent = `Condition: ${condition}`;
   trialLabel.textContent = `Trial ${currentTrial + 1} / ${totalTrials}`;
   feedback.textContent = '';
-  fix.textContent = '+';
-  box.style.background = 'black';
+  
+  // ตั้งค่าหน้าจอก่อนเริ่มไตรอัล
+  fix.textContent = '+'; // แสดงเครื่องหมาย + เป็นสัญลักษณ์ให้เพ่ง (fixation)
+  box.style.background = 'AEEFFF'; // พื้นหลัง stimulus เป็นสีดำ (ยังไม่แสดงสิ่งเร้า)
 
   await delay(rand(500, 800)); // Fixation
   fix.textContent = '';
