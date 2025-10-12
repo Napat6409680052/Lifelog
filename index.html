@@ -4,22 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lifelogging Usability Test</title>
-  <link rel="stylesheet" href="style.css" />
-  <script defer src="script.js"></script>
   <style>
     body {
       font-family: "Sarabun", sans-serif;
-      background: #f7f9fa;
+      background: #f5f7fa;
       display: flex;
       justify-content: center;
       align-items: flex-start;
-      padding: 30px;
+      padding: 40px;
     }
     .container {
       background: white;
       border-radius: 16px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      max-width: 600px;
+      max-width: 650px;
+      width: 100%;
       padding: 30px;
       text-align: center;
     }
@@ -32,25 +31,26 @@
       margin-top: 0.3rem;
       font-weight: normal;
     }
-    img.device {
-      width: 260px;
-      margin: 15px auto;
-      display: block;
-      border-radius: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    }
     label {
-      font-weight: bold;
       display: block;
+      font-weight: bold;
       margin-top: 20px;
     }
     input {
-      padding: 8px 12px;
+      padding: 10px;
       width: 60%;
-      margin-top: 5px;
+      border-radius: 8px;
       border: 1px solid #ccc;
-      border-radius: 6px;
+      margin-top: 8px;
+      font-size: 1rem;
       text-align: center;
+    }
+    img.device {
+      width: 270px;
+      margin: 15px auto;
+      display: block;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     }
     .instructions {
       text-align: left;
@@ -62,7 +62,7 @@
       background: #007bff;
       color: white;
       border: none;
-      padding: 12px 20px;
+      padding: 12px 22px;
       border-radius: 8px;
       font-size: 1rem;
       cursor: pointer;
@@ -89,7 +89,7 @@
       <h3>คำแนะนำทั่วไปก่อนเริ่มการทดสอบ</h3>
       <p>
         การทดสอบนี้มีวัตถุประสงค์เพื่อประเมินความเข้าใจของผู้ใช้ต่ออุปกรณ์บันทึกชีวิตจริง 
-        ซึ่งมีลักษณะดังภาพด้านล่าง
+        โดยใช้อุปกรณ์ต้นแบบดังภาพด้านล่าง
       </p>
 
       <img src="device.jpg" alt="ภาพอุปกรณ์บันทึกชีวิต" class="device">
@@ -124,7 +124,9 @@
     </div>
   </div>
 
+  <!-- 🔧 Script -->
   <script>
+    // เมื่อกดเริ่ม Scenario 1
     function startScenario1() {
       const pid = document.getElementById('pid').value.trim();
       if (!pid) {
