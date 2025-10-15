@@ -5,17 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lifelogging Usability Test</title>
   <link rel="stylesheet" href="style.css">
-  <script defer>
-    function startScenario1() {
-      const pid = document.getElementById("pid").value.trim();
-      if (!pid) {
-        alert("กรุณากรอก Participant ID ก่อนเริ่มการทดสอบ");
-        return;
-      }
-      localStorage.setItem("pid", pid);
-      window.location.href = "scenario1/taskLED.html";
-    }
-  </script>
 </head>
 
 <body>
@@ -45,7 +34,20 @@
       ไม่มีคำตอบที่ถูกหรือผิด
     </p>
 
-    <button class="primary" onclick="startScenario1()">เริ่ม Scenario 1</button>
+    <button class="primary" id="startBtn">เริ่ม Scenario 1</button>
   </div>
+
+  <script>
+    document.getElementById("startBtn").addEventListener("click", () => {
+      const pid = document.getElementById("pid").value.trim();
+      if (!pid) {
+        alert("กรุณากรอก Participant ID ก่อนเริ่มการทดสอบ");
+        return;
+      }
+      localStorage.setItem("pid", pid);
+      // ✅ เริ่มจาก taskLED.html แทน task1.html
+      window.location.href = "scenario1/taskLED.html";
+    });
+  </script>
 </body>
 </html>
