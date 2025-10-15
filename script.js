@@ -153,6 +153,7 @@ function clearStimulus() {
 }
 
 function showConfidence(isEnd = false) {
+  // popup เป็น prompt จริง
   const conf = prompt(
     "คุณมั่นใจแค่ไหนว่ารับรู้ได้ถูกต้อง?\n([1] ไม่มั่นใจเลย – [5] มั่นใจที่สุด)",
     ""
@@ -161,6 +162,7 @@ function showConfidence(isEnd = false) {
   const confidence = parseInt(conf) || 0;
   data.push({ pid, task: taskName, confidence_1_5: confidence });
 
+  // ถ้าเป็น trial สุดท้ายใน task 4/4 → ไป Scenario 2
   if (isEnd) {
     if (taskIndex === 4) {
       alert("จบ Task 4/4 แล้ว\nคลิกตกลงเพื่อไป Scenario 2");
@@ -170,10 +172,12 @@ function showConfidence(isEnd = false) {
       saveAndNext();
     }
   } else {
+    // หลัง trial 10 → แจ้งให้ทำต่อ
     alert("ขอบคุณค่ะ กรุณาทำต่อในชุดถัดไป");
     loadTrial();
   }
 }
+
 
 
 

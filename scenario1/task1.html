@@ -20,7 +20,6 @@
     </p>
 
     <div class="stimulus-area">
-      <!-- คลิป stimulus -->
       <video id="ledVideo" width="250" autoplay muted playsinline></video>
     </div>
 
@@ -29,16 +28,6 @@
       <button class="answer" data-choice="2">ทำงานอยู่แต่ผิดปกติ (เล็กน้อย)</button>
       <button class="answer" data-choice="3">ทำงานอยู่แต่ผิดปกติ (รุนแรง)</button>
       <button class="answer" data-choice="4">ไม่มีการทำงาน</button>
-    </div>
-  </div>
-
-  <!-- Popup ความมั่นใจ -->
-  <div id="confidencePopup" class="popup hidden">
-    <div class="popup-box">
-      <h3>ความมั่นใจในการตอบครั้งที่ผ่านมา</h3>
-      <p>คุณมั่นใจแค่ไหนว่ารับรู้ได้ถูกต้อง?<br>([1] ไม่มั่นใจเลย – [5] มั่นใจที่สุด)</p>
-      <input id="confidenceInput" type="number" min="1" max="5" placeholder="กรอกคะแนน เช่น 5">
-      <button id="confirmBtn">ตกลง</button>
     </div>
   </div>
 
@@ -61,10 +50,6 @@
 
     const video = document.getElementById("ledVideo");
     const trialNum = document.getElementById("trialNum");
-    const popup = document.getElementById("confidencePopup");
-    const confirmBtn = document.getElementById("confirmBtn");
-    const confidenceInput = document.getElementById("confidenceInput");
-
     const answerBtns = document.querySelectorAll(".answer");
 
     // เริ่ม Trial แรก
@@ -81,9 +66,7 @@
       video.src = `${videoFolder}${stim}.mp4`;
       startTime = performance.now();
 
-      answerBtns.forEach(btn => {
-        btn.disabled = false;
-      });
+      answerBtns.forEach(btn => (btn.disabled = false));
     }
 
     answerBtns.forEach(btn => {
@@ -102,9 +85,8 @@
 
         currentTrial++;
 
-        // ทุก 10 trial ขึ้น popup ความมั่นใจ
         if (currentTrial % 10 === 0 || currentTrial === totalTrials) {
-          showConfidence();
+          showConfidence(currentTrial === totalTrials);
         } else {
           setTimeout(loadTrial, 600);
         }
@@ -120,30 +102,28 @@
       }
     }
 
+    // 🟩 เปลี่ยน popup เป็น alert/prompt จริง
     function showConfidence(isEnd = false) {
-      popup.classList.remove("hidden");
+      const conf = prompt(
+        "คุณมั่นใจแค่ไหนว่ารับรู้ได้ถูกต้อง?\n([1] ไม่มั่นใจเลย – [5] มั่นใจที่สุด)",
+        ""
+      );
 
-      if (isEnd && taskIndex === 4) {
-        confirmBtn.textContent = "ตกลง และ ไป Scenario 2";
-      } else if (isEnd) {
-        confirmBtn.textContent = "ตกลง และ ทำ Task ถัดไป";
-      } else {
-        confirmBtn.textContent = "ตกลง";
-      }
+      const confidence = parseInt(conf) || 0;
+      data.push({ pid, task: taskName, confidence_1_5: confidence });
 
-      confirmBtn.onclick = () => {
-        const conf = parseInt(confidenceInput.value) || 0;
-        data.push({ pid, task: taskName, confidence_1_5: conf });
-
-        confidenceInput.value = "";
-        popup.classList.add("hidden");
-
-        if (isEnd) {
+      if (isEnd) {
+        if (taskIndex === 4) {
+          alert("จบ Task 4/4 แล้ว\nคลิกตกลงเพื่อไป Scenario 2");
           saveAndNext();
         } else {
-          loadTrial();
+          alert(`จบ Task ${taskIndex}/4 แล้ว\nคลิกตกลงเพื่อทำ Task ถัดไป`);
+          saveAndNext();
         }
-      };
+      } else {
+        alert("ขอบคุณค่ะ กรุณาทำต่อในชุดถัดไป");
+        loadTrial();
+      }
     }
 
     function saveAndNext() {
