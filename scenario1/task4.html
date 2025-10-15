@@ -80,9 +80,11 @@
     }
 
     function saveAndNext() {
-      localStorage.setItem("scenario1_data", JSON.stringify(data));
-      window.location.href = "../summary.html";
-    }
+  localStorage.setItem("scenario1_data", JSON.stringify(data));
+  // ไป Summary
+  window.location.href = "../summary.html";
+}
+
   </script>
 </body>
 </html>
