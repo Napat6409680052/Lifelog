@@ -177,6 +177,7 @@ function showConfidence(isEnd = false) {
 
 
 
+
 function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 function rand(min, max) { return Math.random() * (max - min) + min; }
 
