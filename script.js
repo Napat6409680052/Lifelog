@@ -152,6 +152,30 @@ function clearStimulus() {
   box.style.background = 'black'; // รีเซ็ตพื้นหลังกลับเป็นสีดำ
 }
 
+function showConfidence(isEnd = false) {
+  const conf = prompt(
+    "คุณมั่นใจแค่ไหนว่ารับรู้ได้ถูกต้อง?\n([1] ไม่มั่นใจเลย – [5] มั่นใจที่สุด)",
+    ""
+  );
+
+  const confidence = parseInt(conf) || 0;
+  data.push({ pid, task: taskName, confidence_1_5: confidence });
+
+  if (isEnd) {
+    if (taskIndex === 4) {
+      alert("จบ Task 4/4 แล้ว\nคลิกตกลงเพื่อไป Scenario 2");
+      saveAndNext();
+    } else {
+      alert(`จบ Task ${taskIndex}/4 แล้ว\nคลิกตกลงเพื่อทำ Task ถัดไป`);
+      saveAndNext();
+    }
+  } else {
+    alert("ขอบคุณค่ะ กรุณาทำต่อในชุดถัดไป");
+    loadTrial();
+  }
+}
+
+
 
 function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 function rand(min, max) { return Math.random() * (max - min) + min; }
