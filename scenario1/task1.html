@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scenario 1 - Task 1 (LED)</title>
+  <link rel="stylesheet" href="../style.css">
+  <script defer src="../script.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <h2 class="title">Scenario 1 (Awareness Test)</h2>
+    <p><strong>Task <span id="taskOrder">1/4</span> : LED (แสง)</strong></p>
+    <p><strong>Trial <span id="trialNum">1</span> / 20</strong></p>
+    <hr>
+
+    <p class="question">
+      จากสัญญาณที่ท่านเห็น อุปกรณ์นี้กำลังทำงานอยู่หรือไม่ และอยู่ในสภาพใด?
+    </p>
+
+    <div class="stimulus-area">
+      <!-- คลิป stimulus -->
+      <video id="ledVideo" width="250" autoplay muted playsinline></video>
+    </div>
+
+    <div class="btn-area">
+      <button class="answer" data-choice="1">ทำงานอยู่และปกติ</button>
+      <button class="answer" data-choice="2">ทำงานอยู่แต่ผิดปกติ (เล็กน้อย)</button>
+      <button class="answer" data-choice="3">ทำงานอยู่แต่ผิดปกติ (รุนแรง)</button>
+      <button class="answer" data-choice="4">ไม่มีการทำงาน</button>
+    </div>
+  </div>
+
+  <!-- Popup ความมั่นใจ -->
+  <div id="confidencePopup" class="popup hidden">
+    <div class="popup-box">
+      <h3>ความมั่นใจในการตอบครั้งที่ผ่านมา</h3>
+      <p>คุณมั่นใจแค่ไหนว่ารับรู้ได้ถูกต้อง?<br>([1] ไม่มั่นใจเลย – [5] มั่นใจที่สุด)</p>
+      <input id="confidenceInput" type="number" min="1" max="5" placeholder="กรอกคะแนน เช่น 5">
+      <button id="confirmBtn">ตกลง</button>
+    </div>
+  </div>
+
+  <script>
+    const pid = localStorage.getItem("pid") || "00";
+    const taskName = "LED";
+    const taskIndex = 1; // task 1/4
+    const totalTrials = 20;
+
+    const stimuli = ["green", "yellow", "red", "off"];
+    const videoFolder = "./s1LED/";
+    const trialOrder = [];
+    for (let i = 0; i < totalTrials; i++) {
+      trialOrder.push(stimuli[Math.floor(Math.random() * stimuli.length)]);
+    }
+
+    let currentTrial = 0;
+    let startTime;
+    let data = [];
+
+    const video = document.getElementById("ledVideo");
+    const trialNum = document.getElementById("trialNum");
+    const popup = document.getElementById("confidencePopup");
+    const confirmBtn = document.getElementById("confirmBtn");
+    const confidenceInput = document.getElementById("confidenceInput");
+
+    const answerBtns = document.querySelectorAll(".answer");
+
+    // เริ่ม Trial แรก
+    loadTrial();
+
+    function loadTrial() {
+      if (currentTrial >= totalTrials) {
+        showConfidence(true);
+        return;
+      }
+
+      trialNum.textContent = currentTrial + 1;
+      const stim = trialOrder[currentTrial];
+      video.src = `${videoFolder}${stim}.mp4`;
+      startTime = performance.now();
+
+      answerBtns.forEach(btn => {
+        btn.disabled = false;
+      });
+    }
+
+    answerBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const rt = ((performance.now() - startTime) / 1000).toFixed(2);
+        const userChoice = parseInt(btn.dataset.choice);
+        const trueStim = trialOrder[currentTrial];
+        const correctAns = getCorrectAnswer(trueStim);
+        const isCorrect = userChoice === correctAns;
+
+        data.push({
+          pid, task: taskName, trial: currentTrial + 1,
+          true_state: trueStim, user_response: userChoice,
+          is_correct: isCorrect, rt_sec: rt
+        });
+
+        currentTrial++;
+
+        // ทุก 10 trial ขึ้น popup ความมั่นใจ
+        if (currentTrial % 10 === 0 || currentTrial === totalTrials) {
+          showConfidence();
+        } else {
+          setTimeout(loadTrial, 600);
+        }
+      });
+    });
+
+    function getCorrectAnswer(stim) {
+      switch (stim) {
+        case "green": return 1;
+        case "yellow": return 2;
+        case "red": return 3;
+        case "off": return 4;
+      }
+    }
+
+    function showConfidence(isEnd = false) {
+      popup.classList.remove("hidden");
+
+      if (isEnd && taskIndex === 4) {
+        confirmBtn.textContent = "ตกลง และ ไป Scenario 2";
+      } else if (isEnd) {
+        confirmBtn.textContent = "ตกลง และ ทำ Task ถัดไป";
+      } else {
+        confirmBtn.textContent = "ตกลง";
+      }
+
+      confirmBtn.onclick = () => {
+        const conf = parseInt(confidenceInput.value) || 0;
+        data.push({ pid, task: taskName, confidence_1_5: conf });
+
+        confidenceInput.value = "";
+        popup.classList.add("hidden");
+
+        if (isEnd) {
+          saveAndNext();
+        } else {
+          loadTrial();
+        }
+      };
+    }
+
+    function saveAndNext() {
+      localStorage.setItem("scenario1_data", JSON.stringify(data));
+
+      if (taskIndex < 4) {
+        window.location.href = `task${taskIndex + 1}.html`;
+      } else {
+        window.location.href = "../summary.html";
+      }
+    }
+  </script>
+</body>
+</html>
