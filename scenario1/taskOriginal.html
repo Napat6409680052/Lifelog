@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scenario 1 - Task 4 (None)</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+  <div class="container">
+    <h2 class="title">Scenario 1 (Awareness Test)</h2>
+    <p><strong>Task <span id="taskOrder">4/4</span> : None (ต้นฉบับ)</strong></p>
+    <p><strong>Trial <span id="trialNum">1</span> / 20</strong></p>
+    <hr>
+    <p class="question">จากสัญญาณที่ท่านเห็น อุปกรณ์นี้กำลังทำงานอยู่หรือไม่ และอยู่ในสภาพใด?</p>
+
+    <div class="stimulus-area">
+      <img src="./pic/original.png" width="250" alt="device original">
+    </div>
+
+    <div class="btn-area">
+      <button class="answer" data-choice="1">ทำงานอยู่และปกติ</button>
+      <button class="answer" data-choice="2">ทำงานอยู่แต่ผิดปกติ (เล็กน้อย)</button>
+      <button class="answer" data-choice="3">ทำงานอยู่แต่ผิดปกติ (รุนแรง)</button>
+      <button class="answer" data-choice="4">ไม่มีการทำงาน</button>
+    </div>
+  </div>
+
+  <script>
+    const pid = localStorage.getItem("pid") || "00";
+    const taskName = "None";
+    const taskIndex = 4;
+    const totalTrials = 20;
+    const stimuli = ["none"];
+    const trialOrder = Array.from({ length: totalTrials }, () => "none");
+    let currentTrial = 0, startTime, data = [];
+    const trialNum = document.getElementById("trialNum");
+    const answerBtns = document.querySelectorAll(".answer");
+
+    loadTrial();
+
+    function loadTrial() {
+      if (currentTrial >= totalTrials) { showConfidence(true); return; }
+      trialNum.textContent = currentTrial + 1;
+      startTime = performance.now();
+      answerBtns.forEach(btn => btn.disabled = false);
+    }
+
+    answerBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const rt = ((performance.now() - startTime) / 1000).toFixed(2);
+        const userChoice = +btn.dataset.choice;
+        const correctAns = 4; // ไม่มีการทำงาน = ถูก
+        const isCorrect = userChoice === correctAns;
+
+        data.push({ pid, task: taskName, trial: currentTrial + 1,
+          true_state: "none", user_response: userChoice,
+          is_correct: isCorrect, rt_sec: rt });
+
+        currentTrial++;
+        if (currentTrial % 10 === 0 || currentTrial === totalTrials)
+          showConfidence(currentTrial === totalTrials);
+        else setTimeout(loadTrial, 600);
+      });
+    });
+
+    function showConfidence(isEnd = false) {
+      const conf = prompt("คุณมั่นใจแค่ไหนว่ารับรู้ได้ถูกต้อง?\n([1] ไม่มั่นใจเลย – [5] มั่นใจที่สุด)", "");
+      const confidence = parseInt(conf) || 0;
+      data.push({ pid, task: taskName, confidence_1_5: confidence });
+
+      if (isEnd) {
+        alert("จบ Task 4/4 แล้ว\nคลิกตกลงเพื่อไป Scenario 2");
+        saveAndNext();
+      } else {
+        alert("ขอบคุณค่ะ กรุณาทำต่อในชุดถัดไป");
+        loadTrial();
+      }
+    }
+
+    function saveAndNext() {
+      localStorage.setItem("scenario1_data", JSON.stringify(data));
+      window.location.href = "../summary.html";
+    }
+  </script>
+</body>
+</html>

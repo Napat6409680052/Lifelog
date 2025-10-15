@@ -229,27 +229,28 @@ function finishCondition() {
   const idx = seq.indexOf(condition);
   const nextCond = idx >= 0 && idx < seq.length - 1 ? seq[idx + 1] : null;
 
-  // 4. ถ้ามี condition ต่อไป
+  // 4. ไปหน้า task ตามชื่อใหม่
   if (nextCond) {
-    condition = nextCond;
-    const condLabel = document.getElementById('condLabel');
-    condLabel.textContent = `Condition: ${condition}`;
-    document.getElementById('feedback').textContent = '';
-    document.getElementById('trialLabel').textContent = '';
-    document.getElementById('fixation').textContent = '+';
-
-    // แสดงข้อความพักสั้น ๆ ก่อนเริ่ม condition ต่อไป
-    condLabel.style.color = '#007bff';
-    condLabel.textContent = `พักสั้นๆ... ต่อไปคือ Condition: ${condition}`;
-    delay(2000).then(() => {
-      condLabel.textContent = `Condition: ${condition}`;
-      runTrial();
-    });
+    switch (nextCond) {
+      case 'LED':
+        window.location.href = 'scenario1/taskLED.html';
+        break;
+      case 'Beep':
+        window.location.href = 'scenario1/taskSound.html';
+        break;
+      case 'Vibrate':
+        window.location.href = 'scenario1/taskVibration.html';
+        break;
+      case 'None':
+        window.location.href = 'scenario1/taskOriginal.html';
+        break;
+    }
   } else {
     // 5. ถ้าไม่มี condition ต่อ → ไป summary
     window.location.href = 'summary.html';
   }
 }
+
 
 
 
