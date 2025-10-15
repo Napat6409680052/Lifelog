@@ -3,25 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scenario 1 - Task 1 (LED)</title>
+  <title>Scenario 1 – Task 1 (LED)</title>
   <link rel="stylesheet" href="../style.css">
-  <script defer src="../script.js"></script>
 </head>
 
 <body>
   <div class="container">
-    <h2 class="title">Scenario 1 (Awareness Test)</h2>
-    <p><strong>Task <span id="taskOrder">1/4</span> : LED (แสง)</strong></p>
+    <h2>Scenario 1 (Awareness Test)</h2>
+    <p><strong>Task 1 / 4 : LED (แสง)</strong></p>
     <p><strong>Trial <span id="trialNum">1</span> / 20</strong></p>
     <hr>
 
-    <p class="question">
-      จากสัญญาณที่ท่านเห็น อุปกรณ์นี้กำลังทำงานอยู่หรือไม่ และอยู่ในสภาพใด?
-    </p>
-
-    <div class="stimulus-area">
-      <video id="ledVideo" width="250" autoplay muted playsinline></video>
-    </div>
+    <p class="question">จากสัญญาณที่ท่านเห็น อุปกรณ์นี้กำลังทำงานอยู่หรือไม่ และอยู่ในสภาพใด?</p>
+    <video id="stimVideo" width="250" autoplay muted playsinline></video>
 
     <div class="btn-area">
       <button class="answer" data-choice="1">ทำงานอยู่และปกติ</button>
@@ -32,107 +26,50 @@
   </div>
 
   <script>
-    const pid = localStorage.getItem("pid") || "00";
-    const taskName = "LED";
-    const taskIndex = 1; // task 1/4
+    const pid = localStorage.getItem("pid");
+    const taskIndex = 1;
     const totalTrials = 20;
-
     const stimuli = ["green", "yellow", "red", "off"];
-    const videoFolder = "./s1LED/";
-    const trialOrder = [];
-    for (let i = 0; i < totalTrials; i++) {
-      trialOrder.push(stimuli[Math.floor(Math.random() * stimuli.length)]);
-    }
+    const folder = "./s1LED/";
+    let currentTrial = 0, startTime, data = [];
 
-    let currentTrial = 0;
-    let startTime;
-    let data = [];
-
-    const video = document.getElementById("ledVideo");
+    const video = document.getElementById("stimVideo");
     const trialNum = document.getElementById("trialNum");
-    const answerBtns = document.querySelectorAll(".answer");
+    const btns = document.querySelectorAll(".answer");
 
-    // เริ่ม Trial แรก
-    loadTrial();
-
-    function loadTrial() {
-      if (currentTrial >= totalTrials) {
-        showConfidence(true);
-        return;
-      }
-
-      trialNum.textContent = currentTrial + 1;
-      const stim = trialOrder[currentTrial];
-      video.src = `${videoFolder}${stim}.mp4`;
+    startTrial();
+    function startTrial() {
+      if (currentTrial >= totalTrials) { showConfidence(true); return; }
+      const stim = stimuli[Math.floor(Math.random()*4)];
+      video.src = `${folder}${stim}.mp4`;
+      trialNum.textContent = currentTrial+1;
       startTime = performance.now();
-
-      answerBtns.forEach(btn => (btn.disabled = false));
+      btns.forEach(b => b.disabled=false);
     }
 
-    answerBtns.forEach(btn => {
-      btn.addEventListener("click", () => {
-        const rt = ((performance.now() - startTime) / 1000).toFixed(2);
-        const userChoice = parseInt(btn.dataset.choice);
-        const trueStim = trialOrder[currentTrial];
-        const correctAns = getCorrectAnswer(trueStim);
-        const isCorrect = userChoice === correctAns;
-
-        data.push({
-          pid, task: taskName, trial: currentTrial + 1,
-          true_state: trueStim, user_response: userChoice,
-          is_correct: isCorrect, rt_sec: rt
-        });
-
+    btns.forEach(b=>{
+      b.addEventListener("click",()=>{
+        const rt = ((performance.now()-startTime)/1000).toFixed(2);
+        const resp = +b.dataset.choice;
+        const stim = video.src.split("/").pop().replace(".mp4","");
+        const correct = {green:1,yellow:2,red:3,off:4}[stim];
+        data.push({pid,task:"LED",trial:currentTrial+1,stim,resp,correct,isCorrect:resp===correct,rt});
         currentTrial++;
-
-        if (currentTrial % 10 === 0 || currentTrial === totalTrials) {
-          showConfidence(currentTrial === totalTrials);
-        } else {
-          setTimeout(loadTrial, 600);
-        }
+        if(currentTrial%10===0||currentTrial===totalTrials) showConfidence(currentTrial===totalTrials);
+        else setTimeout(startTrial,500);
       });
     });
 
-    function getCorrectAnswer(stim) {
-      switch (stim) {
-        case "green": return 1;
-        case "yellow": return 2;
-        case "red": return 3;
-        case "off": return 4;
-      }
-    }
-
-    // 🟩 ใช้ prompt / alert จริง (ไม่มี div popup)
-    function showConfidence(isEnd = false) {
-      const conf = prompt(
-        "คุณมั่นใจแค่ไหนว่ารับรู้ได้ถูกต้อง?\n([1] ไม่มั่นใจเลย – [5] มั่นใจที่สุด)",
-        ""
-      );
-
-      const confidence = parseInt(conf) || 0;
-      data.push({ pid, task: taskName, confidence_1_5: confidence });
-
-      if (isEnd) {
-        if (taskIndex === 4) {
-          alert("จบ Task 4/4 แล้ว\nคลิกตกลงเพื่อไป Scenario 2");
-          saveAndNext();
-        } else {
-          alert(`จบ Task ${taskIndex}/4 แล้ว\nคลิกตกลงเพื่อทำ Task ถัดไป`);
-          saveAndNext();
-        }
-      } else {
-        alert("ขอบคุณค่ะ กรุณาทำต่อในชุดถัดไป");
-        loadTrial();
-      }
-    }
-
-    function saveAndNext() {
-      localStorage.setItem("scenario1_data", JSON.stringify(data));
-
-      if (taskIndex < 4) {
-        window.location.href = `task${taskIndex + 1}.html`;
-      } else {
-        window.location.href = "../summary.html";
+    function showConfidence(end=false){
+      const conf = prompt("คุณมั่นใจแค่ไหนว่ารับรู้ได้ถูกต้อง?\n(1 = ไม่มั่นใจเลย – 5 = มั่นใจที่สุด)","");
+      data.push({pid,task:"LED",confidence:+conf||0});
+      if(end){
+        alert("จบ Task 1/4 แล้ว → ทำ Task ถัดไป");
+        localStorage.setItem("scenario1_data",JSON.stringify(data));
+        window.location.href="taskSound.html";
+      }else{
+        alert("ขอบคุณค่ะ ดำเนินการต่อ");
+        startTrial();
       }
     }
   </script>
