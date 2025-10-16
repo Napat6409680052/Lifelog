@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scenario 2 – คำแนะนำก่อนเริ่ม</title>
+  <style>
+    body {
+      font-family: "Sarabun", sans-serif;
+      background: #f7f7f7;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      max-width: 500px;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      font-size: 1.1em;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <h1>Scenario 2: ความง่ายในการควบคุม (Easy Interface)</h1>
+    <p>
+      ในการทดสอบนี้ คุณจะได้เห็นภาพของอุปกรณ์จริง<br>
+      ซึ่งมีปุ่มควบคุมลักษณะแตกต่างกันในแต่ละรอบ
+    </p>
+    <p style="color:#555;">
+      🟢 โปรดสังเกตปุ่มบนอุปกรณ์ และคลิกบริเวณที่คุณคิดว่า<br>
+      เป็นปุ่มเริ่ม/หยุดการบันทึก<br><br>
+      ⏱ แต่ละภาพจะแสดงเป็นเวลา 30 วินาที<br>
+      📊 หลังจบแต่ละภาพ ระบบจะถามระดับความมั่นใจของคุณ (1–5)
+    </p>
+
+    <p><strong>เมื่อพร้อมแล้ว กดปุ่มด้านล่างเพื่อเริ่มการทดสอบ</strong></p>
+
+    <button onclick="startTest()">เริ่มการทดสอบ</button>
+  </div>
+
+  <script>
+    function startTest() {
+      window.location.href = "playsc2.html";
+    }
+  </script>
+</body>
+</html>

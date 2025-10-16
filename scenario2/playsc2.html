@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scenario 2 – Easy Interface</title>
+  <style>
+    body {
+      font-family: "Sarabun", sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #f7f7f7;
+      height: 100vh;
+    }
+    img {
+      width: 320px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      cursor: pointer;
+    }
+    .info {
+      text-align: center;
+      margin-top: 10px;
+    }
+    #timer {
+      font-weight: bold;
+      color: #333;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>Scenario 2: Easy Interface Test</h2>
+  <img id="testImage" src="" alt="interface" />
+  <div class="info">
+    <p>เวลาเหลือ: <span id="timer">30</span> วินาที</p>
+    <p>ถูก: <span id="correct">0</span> | ผิด: <span id="wrong">0</span></p>
+    <p id="progress"></p>
+  </div>
+
+  <script>
+    const images = [
+      "bicon.png",
+      "bictext.png",
+      "onlybotton.png",
+      "original.png"
+    ];
+
+    // hit-box สำหรับแต่ละรูป (x, y, w, h)
+    const buttonAreas = {
+      "bicon.png":      { x: 0.10, y: 0.08, w: 0.10, h: 0.10 },
+      "bictext.png":    { x: 0.10, y: 0.08, w: 0.12, h: 0.12 },
+      "onlybotton.png": { x: 0.10, y: 0.09, w: 0.09, h: 0.09 },
+      "original.png":   null
+    };
+
+    let current = 0;
+    let correct = 0;
+    let wrong = 0;
+    let timeLeft = 30;
+    let timer;
+
+    const imgEl = document.getElementById("testImage");
+    const timerEl = document.getElementById("timer");
+    const correctEl = document.getElementById("correct");
+    const wrongEl = document.getElementById("wrong");
+    const progressEl = document.getElementById("progress");
+
+    function loadImage() {
+      imgEl.src = "picScenario2/" + images[current];
+      progressEl.textContent = `ภาพ ${current + 1} / ${images.length}`;
+      timeLeft = 30;
+      timerEl.textContent = timeLeft;
+      clearInterval(timer);
+      timer = setInterval(() => {
+        timeLeft--;
+        timerEl.textContent = timeLeft;
+        if (timeLeft <= 0) askConfidence();
+      }, 1000);
+    }
+
+    imgEl.addEventListener("click", (e) => {
+      const rect = imgEl.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width;
+      const y = (e.clientY - rect.top) / rect.height;
+      const imgName = images[current];
+      const area = buttonAreas[imgName];
+
+      if (area && x >= area.x && x <= area.x + area.w &&
+          y >= area.y && y <= area.y + area.h) {
+        correct++;
+        correctEl.textContent = correct;
+      } else {
+        wrong++;
+        wrongEl.textContent = wrong;
+      }
+    });
+
+    // ✅ ถามความมั่นใจหลังจบแต่ละภาพ
+    function askConfidence() {
+      clearInterval(timer);
+      const conf = prompt("ให้คะแนนความมั่นใจ (1–5) ว่าคุณเข้าใจปุ่มนี้ดีแค่ไหน?");
+      if (conf) {
+        localStorage.setItem(`conf_${images[current]}`, conf);
+      }
+      nextImage();
+    }
+
+    function nextImage() {
+      current++;
+      if (current < images.length) {
+        loadImage();
+      } else {
+        imgEl.style.display = "none";
+        progressEl.textContent = "✅ จบการทดสอบ";
+        const summary = `
+          <h3>สรุปผล</h3>
+          <p>ถูก: ${correct} | ผิด: ${wrong}</p>
+          <p>ความมั่นใจแต่ละภาพ:</p>
+          <ul>
+            ${images.map(img => `<li>${img}: ${localStorage.getItem('conf_' + img) || '-'} /5</li>`).join('')}
+          </ul>`;
+        document.body.insertAdjacentHTML("beforeend", summary);
+      }
+    }
+
+    loadImage();
+  </script>
+</body>
+</html>
