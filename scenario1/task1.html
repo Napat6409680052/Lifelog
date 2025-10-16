@@ -1,25 +1,32 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Scenario 1 - Task 1 (LED)</title>
-  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../style.css" />
   <script defer src="../script.js"></script>
 </head>
 
 <body>
   <div class="container">
-    <h2>Scenario 1 - Task 1 (LED)</h2>
-    <p id="condLabel">Condition: LED</p>
-    <p id="trialLabel">Trial 1 / 20</p>
-    <p id="statusText" class="status-text">Trial นี้กำลังแสดงสัญญาณ โปรดรอสักครู่...</p>
+    <h2>Scenario 1 (Awareness Test)</h2>
+    <p id="condLabel"><strong>Condition:</strong></p>
+    <p id="trialLabel"><strong>Trial 1 / 20</strong></p>
+    <hr>
 
-    <div id="fixation">+</div>
-    <div id="ledBox" class="stimulus-area"></div>
-    <div id="feedback"></div>
+    <p class="question">จากสัญญาณที่ท่านเห็น อุปกรณ์นี้กำลังทำงานอยู่หรือไม่ และอยู่ในสภาพใด?</p>
 
-    <button id="respondBtn" class="primary">ตอบ</button>
+    <div id="fixation" class="fixation">+</div>
+    <div id="ledBox" class="stimulus-area">
+      <video id="ledVideo" width="250" autoplay muted playsinline></video>
+    </div>
+
+    <div id="feedback" class="feedback"></div>
+
+    <div class="btn-area">
+      <button id="respondBtn" class="answer">ตอบ</button>
+    </div>
   </div>
 </body>
 </html>
