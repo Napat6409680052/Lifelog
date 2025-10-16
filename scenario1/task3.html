@@ -12,6 +12,8 @@
     <h2 class="title">Scenario 1 (Awareness Test)</h2>
     <p><strong>Task <span id="taskOrder">3/4</span> : <span id="taskName">Vibration</span></strong></p>
     <p><strong>Trial <span id="trialNum">1</span> / 20</strong></p>
+      <!-- ✅ เพิ่มข้อความสถานะเทาอ่อน -->
+    <p id="statusText" class="status-text">Trial นี้กำลังแสดงสัญญาณ โปรดรอสักครู่...</p>
     <hr>
 
     <p class="question">จากสัญญาณที่ท่านเห็น อุปกรณ์นี้กำลังทำงานอยู่หรือไม่ และอยู่ในสภาพใด?</p>
@@ -52,8 +54,28 @@
       }
     }
 
-    loadTrial();
+    loadTrial(); 
 
+    function loadTrial() {
+      if (currentTrial >= totalTrials) return showConfidence(true);
+      trialNum.textContent = currentTrial + 1;
+
+      // ✅ แสดงข้อความสถานะระหว่าง stimulus
+      statusText.style.display = "block";
+      answerBtns.forEach(btn => (btn.disabled = true));
+
+      // โหลดวิดีโอของ trial นี้
+      const stim = trialOrder[currentTrial];
+      video.src = `${videoFolder}${stim}.mp4`;
+
+      // ✅ หน่วงเวลา 3.5 วินาทีก่อนให้ตอบ
+      setTimeout(() => {
+        statusText.style.display = "none";
+        answerBtns.forEach(btn => (btn.disabled = false));
+        startTime = performance.now();
+      }, 3500);
+    }
+    
     function loadTrial() {
       if (currentTrial >= totalTrials) { showConfidence(true); return; }
       trialNum.textContent = currentTrial + 1;
