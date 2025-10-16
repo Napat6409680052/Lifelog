@@ -37,26 +37,35 @@
     <button id="startBtn" class="primary">เริ่ม Scenario 1</button>
   </div>
 
-  <script>
-    document.getElementById("startBtn").addEventListener("click", () => {
-      const pid = document.getElementById("pid").value.trim();
-      if (!pid) {
-        alert("กรุณากรอก Participant ID ก่อนเริ่มการทดสอบ");
-        return;
-      }
-      localStorage.setItem("pid", pid);
+<script>
+  function startScenario1() {
+    const pid = document.getElementById('pid').value.trim();
+    if (!pid) {
+      alert('กรุณากรอก Participant ID ก่อนเริ่มการทดสอบ');
+      return;
+    }
 
-      // 🧩 สุ่มลำดับ task
-      const tasks = ["LED", "Sound", "Vibration", "None"];
-      for (let i = tasks.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [tasks[i], tasks[j]] = [tasks[j], tasks[i]];
-      }
-      localStorage.setItem("taskOrder", JSON.stringify(tasks));
+    // ✅ ล้างค่าการทดสอบเก่าทั้งหมด (กันชื่อ Task สลับ)
+    localStorage.clear();
 
-      // เริ่มที่ Task 1
-      window.location.href = "scenario1/task1.html";
-    });
-  </script>
+    // ✅ เก็บข้อมูลผู้เข้าร่วม
+    localStorage.setItem('pid', pid);
+
+    // ✅ สุ่มลำดับ Task ใหม่
+    const tasks = ["LED", "Sound", "Vibration", "None"];
+    for (let i = tasks.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [tasks[i], tasks[j]] = [tasks[j], tasks[i]];
+    }
+    localStorage.setItem("taskOrder", JSON.stringify(tasks));
+
+    // ✅ ไปเริ่ม Scenario 1 ที่ Task 1
+    window.location.href = 'scenario1/task1.html';
+  }
+
+  // ผูกปุ่มกับฟังก์ชัน
+  document.getElementById("startBtn").addEventListener("click", startScenario1);
+</script>
+
 </body>
 </html>
