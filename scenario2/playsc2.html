@@ -108,23 +108,32 @@
       nextImage();
     }
 
-    function nextImage() {
-      current++;
-      if (current < images.length) {
-        loadImage();
-      } else {
-        imgEl.style.display = "none";
-        progressEl.textContent = "✅ จบการทดสอบ";
-        const summary = `
-          <h3>สรุปผล</h3>
-          <p>ถูก: ${correct} | ผิด: ${wrong}</p>
-          <p>ความมั่นใจแต่ละภาพ:</p>
-          <ul>
-            ${images.map(img => `<li>${img}: ${localStorage.getItem('conf_' + img) || '-'} /5</li>`).join('')}
-          </ul>`;
-        document.body.insertAdjacentHTML("beforeend", summary);
-      }
-    }
+function nextImage() {
+  current++;
+  if (current < images.length) {
+    loadImage();
+  } else {
+    clearInterval(timer);
+
+    // สร้าง object ผลลัพธ์ของ Scenario 2
+    const result = {
+      scenario: "Scenario 2",
+      correct,
+      wrong,
+      confidence: images.map(img => ({
+        image: img,
+        score: localStorage.getItem('conf_' + img) || '-'
+      }))
+    };
+
+    // เก็บไว้ใน localStorage
+    localStorage.setItem("result_scenario2", JSON.stringify(result));
+
+    // ไปหน้า summary.html
+    window.location.href = "../summary.html";
+  }
+}
+
 
     loadImage();
   </script>
