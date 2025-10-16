@@ -29,36 +29,34 @@
 
     <h3>Scenario 1 – การรับรู้การทำงานของอุปกรณ์</h3>
     <p>
-      ในการทดสอบนี้ โปรดตอบตามความเข้าใจของท่านว่าอุปกรณ์ “กำลังทำงานอยู่หรือไม่ และอยู่ในสภาพใด”  
-      ไม่มีคำตอบที่ถูกหรือผิด 
+      ทุก Task มีการแสดงรูปภาพหรือวิดีโอ กรุณารอสักครู่ให้แสดงก่อนตอบคำถาม  
+      โปรดตอบตามความเข้าใจว่าอุปกรณ์ “กำลังทำงานอยู่หรือไม่ และอยู่ในสภาพใด”  
+      ไม่มีคำตอบที่ถูกหรือผิด
     </p>
-    <p class="note">
-  🔸 ทุก Task จะมีการแสดง <strong>รูปภาพหรือวิดีโอ</strong> ประกอบการทดสอบ  
-  กรุณารอสักครู่จนกว่าสื่อจะแสดงขึ้นครบก่อนจึงค่อยตอบคำถาม
-</p>
 
-    
-    <button class="primary" id="startBtn">เริ่ม Scenario 1</button>
+    <button id="startBtn" class="primary">เริ่ม Scenario 1</button>
   </div>
 
-<script>
-  document.getElementById("startBtn").addEventListener("click", () => {
-    const pid = document.getElementById("pid").value.trim();
-    if (!pid) { alert("กรุณากรอก Participant ID ก่อนเริ่มการทดสอบ"); return; }
-    localStorage.setItem("pid", pid);
+  <script>
+    document.getElementById("startBtn").addEventListener("click", () => {
+      const pid = document.getElementById("pid").value.trim();
+      if (!pid) {
+        alert("กรุณากรอก Participant ID ก่อนเริ่มการทดสอบ");
+        return;
+      }
+      localStorage.setItem("pid", pid);
 
-    // 🧩 สุ่มลำดับ task
-    const tasks = ["LED", "Sound", "Vibration", "None"];
-    for (let i = tasks.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [tasks[i], tasks[j]] = [tasks[j], tasks[i]];
-    }
-    localStorage.setItem("taskOrder", JSON.stringify(tasks));
+      // 🧩 สุ่มลำดับ task
+      const tasks = ["LED", "Sound", "Vibration", "None"];
+      for (let i = tasks.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [tasks[i], tasks[j]] = [tasks[j], tasks[i]];
+      }
+      localStorage.setItem("taskOrder", JSON.stringify(tasks));
 
-    // เริ่มที่ Task 1
-    window.location.href = "scenario1/task1.html";
-  });
-</script>
-
+      // เริ่มที่ Task 1
+      window.location.href = "scenario1/task1.html";
+    });
+  </script>
 </body>
 </html>

@@ -9,14 +9,15 @@
 
 <body>
   <div class="container">
-    <h2 class="title">Scenario 1 (Awareness Test)</h2>
-    <p><strong>Task <span id="taskOrder">4/4</span> : None (ต้นฉบับ)</strong></p>
+    <h2>Scenario 1 (Awareness Test)</h2>
+    <p><strong>Task <span id="taskOrder">4/4</span> : <span id="taskName"></span></strong></p>
     <p><strong>Trial <span id="trialNum">1</span> / 20</strong></p>
     <hr>
+
     <p class="question">จากสัญญาณที่ท่านเห็น อุปกรณ์นี้กำลังทำงานอยู่หรือไม่ และอยู่ในสภาพใด?</p>
 
     <div class="stimulus-area">
-      <img src="./pic/original.png" width="250" alt="device original">
+      <img src="./pic/device_none.png" width="250" alt="device none">
     </div>
 
     <div class="btn-area">
@@ -29,62 +30,59 @@
 
   <script>
     const pid = localStorage.getItem("pid") || "00";
-    const taskName = "None";
+    const taskOrder = JSON.parse(localStorage.getItem("taskOrder")) || ["LED","Sound","Vibration","None"];
     const taskIndex = 4;
+    const taskName = taskOrder[taskIndex - 1];
+    document.getElementById("taskName").textContent = taskName;
+
     const totalTrials = 20;
-    const stimuli = ["none"];
-    const trialOrder = Array.from({ length: totalTrials }, () => "none");
+    const stimuli = ["off"];
+    const trialOrder = Array.from({length: totalTrials}, () => "off");
     let currentTrial = 0, startTime, data = [];
+
     const trialNum = document.getElementById("trialNum");
     const answerBtns = document.querySelectorAll(".answer");
 
     loadTrial();
 
-    function loadTrial() {
-      if (currentTrial >= totalTrials) { showConfidence(true); return; }
+    function loadTrial(){
+      if(currentTrial >= totalTrials) return showConfidence(true);
       trialNum.textContent = currentTrial + 1;
       startTime = performance.now();
-      answerBtns.forEach(btn => btn.disabled = false);
+      answerBtns.forEach(btn=>btn.disabled=false);
     }
 
-    answerBtns.forEach(btn => {
-      btn.addEventListener("click", () => {
-        const rt = ((performance.now() - startTime) / 1000).toFixed(2);
-        const userChoice = +btn.dataset.choice;
-        const correctAns = 4; // ไม่มีการทำงาน = ถูก
-        const isCorrect = userChoice === correctAns;
-
-        data.push({ pid, task: taskName, trial: currentTrial + 1,
-          true_state: "none", user_response: userChoice,
-          is_correct: isCorrect, rt_sec: rt });
-
+    answerBtns.forEach(btn=>{
+      btn.addEventListener("click",()=>{
+        const rt=((performance.now()-startTime)/1000).toFixed(2);
+        const userChoice=+btn.dataset.choice;
+        const correctAns=4;
+        const isCorrect=userChoice===correctAns;
+        data.push({pid, task:taskName, trial:currentTrial+1, true_state:"off", user_response:userChoice, is_correct:isCorrect, rt_sec:rt});
         currentTrial++;
-        if (currentTrial % 10 === 0 || currentTrial === totalTrials)
-          showConfidence(currentTrial === totalTrials);
-        else setTimeout(loadTrial, 600);
+        if(currentTrial % 10===0 || currentTrial===totalTrials) showConfidence(currentTrial===totalTrials);
+        else setTimeout(loadTrial,600);
       });
     });
 
-    function showConfidence(isEnd = false) {
-      const conf = prompt("คุณมั่นใจแค่ไหนว่ารับรู้ได้ถูกต้อง?\n([1] ไม่มั่นใจเลย – [5] มั่นใจที่สุด)", "");
-      const confidence = parseInt(conf) || 0;
-      data.push({ pid, task: taskName, confidence_1_5: confidence });
+    function showConfidence(isEnd=false){
+      const conf = prompt("คุณมั่นใจแค่ไหนว่ารับรู้ได้ถูกต้อง?\n(1–5)","");
+      const confidence=parseInt(conf)||0;
+      data.push({pid, task:taskName, confidence_1_5:confidence});
 
-      if (isEnd) {
-        alert("จบ Task 4/4 แล้ว\nคลิกตกลงเพื่อไป Scenario 2");
+      if(isEnd){
+        alert("จบ Task 4/4 แล้ว → ไป Scenario 2");
         saveAndNext();
-      } else {
-        alert("ขอบคุณค่ะ กรุณาทำต่อในชุดถัดไป");
+      }else{
+        alert("ขอบคุณค่ะ ดำเนินการต่อ");
         loadTrial();
       }
     }
 
-    function saveAndNext() {
-  localStorage.setItem("scenario1_data", JSON.stringify(data));
-  // ไป Summary
-  window.location.href = "../summary.html";
-}
-
+    function saveAndNext(){
+      localStorage.setItem(`scenario1_data_${taskName}`,JSON.stringify(data));
+      window.location.href="../summary.html";
+    }
   </script>
 </body>
 </html>

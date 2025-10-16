@@ -3,16 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scenario 1 - Task 3 (Vibration)</title>
+  <title>Scenario 1 - Task</title>
   <link rel="stylesheet" href="../style.css">
 </head>
 
 <body>
   <div class="container">
     <h2 class="title">Scenario 1 (Awareness Test)</h2>
-    <p><strong>Task <span id="taskOrder">3/4</span> : Vibration (การสั่น)</strong></p>
+    <p><strong>Task <span id="taskOrder">3/4</span> : <span id="taskName">Vibration</span></strong></p>
     <p><strong>Trial <span id="trialNum">1</span> / 20</strong></p>
     <hr>
+
     <p class="question">จากสัญญาณที่ท่านเห็น อุปกรณ์นี้กำลังทำงานอยู่หรือไม่ และอยู่ในสภาพใด?</p>
 
     <div class="stimulus-area">
@@ -29,13 +30,16 @@
 
   <script>
     const pid = localStorage.getItem("pid") || "00";
-    const taskName = "Vibration";
+    const taskOrder = JSON.parse(localStorage.getItem("taskOrder")) || ["LED","Sound","Vibration","None"];
     const taskIndex = 3;
+    const taskName = taskOrder[taskIndex - 1];
     const totalTrials = 20;
+
     const stimuli = ["normal", "minor", "critical", "none"];
     const trialOrder = Array.from({ length: totalTrials },
       () => stimuli[Math.floor(Math.random() * stimuli.length)]);
     let currentTrial = 0, startTime, data = [];
+
     const trialNum = document.getElementById("trialNum");
     const answerBtns = document.querySelectorAll(".answer");
 
@@ -103,9 +107,10 @@
     }
 
     function saveAndNext() {
-      localStorage.setItem("scenario1_data", JSON.stringify(data));
-      if (taskIndex < 4)
-        window.location.href = `task${taskIndex + 1}.html`;
+      localStorage.setItem(`scenario1_data_${taskName}`, JSON.stringify(data));
+      const nextIndex = taskIndex + 1;
+      if (nextIndex <= 4)
+        window.location.href = `task${nextIndex}.html`;
       else
         window.location.href = "../summary.html";
     }
