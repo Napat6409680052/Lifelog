@@ -33,8 +33,7 @@
     const taskOrder = JSON.parse(localStorage.getItem("taskOrder")) || ["LED","Sound","Vibration","None"];
     const taskIndex = 1;
     const taskName = taskOrder[taskIndex - 1];
-    document.getElementById("taskName").textContent = taskName;
-
+   
     const totalTrials = 20;
     const stimuli = ["green", "yellow", "red", "off"];
     const videoFolder = "./s1LED/";
@@ -48,7 +47,7 @@
 window.addEventListener("load", () => {
       loadTrial(); // เริ่มแสดง stimulus เมื่อหน้าโหลด
     });
-    
+
     loadTrial();
 
  function loadTrial() {
@@ -112,7 +111,7 @@ window.addEventListener("load", () => {
 
     function saveAndNext(){
       localStorage.setItem(`scenario1_data_${taskName}`, JSON.stringify(data));
-      window.location.href = `task${taskIndex + 1}.html`;
+      window.location.href = "task1.html";
     }
   </script>
 </body>
