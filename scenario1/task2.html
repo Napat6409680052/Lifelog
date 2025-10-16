@@ -5,6 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Scenario 1 - Task 2 (Sound)</title>
   <link rel="stylesheet" href="../style.css">
+  <style>
+    .status-text {
+      font-size: 0.9em;
+      color: #888;
+      margin-bottom: 10px;
+      display: none;
+      text-align: center;
+    }
+  </style>
 </head>
 
 <body>
@@ -13,7 +22,7 @@
     <p><strong>Task <span id="taskOrder">2/4</span> : <span id="taskName"></span></strong></p>
     <p><strong>Trial <span id="trialNum">1</span> / 20</strong></p>
 
-   <!-- ✅ เพิ่มข้อความสถานะเทาอ่อน -->
+    <!-- ✅ เพิ่มข้อความสถานะเทาอ่อน -->
     <p id="statusText" class="status-text">Trial นี้กำลังแสดงสัญญาณ โปรดรอสักครู่...</p>   
     <hr>
 
@@ -41,26 +50,30 @@
     const totalTrials = 20;
     const stimuli = ["normal","minor","critical","none"];
     const audioFolder = "./s1Sound/";
-    const trialOrder = Array.from({length: totalTrials}, () => stimuli[Math.floor(Math.random() * stimuli.length)]);
+    const trialOrder = Array.from({length: totalTrials}, () =>
+      stimuli[Math.floor(Math.random() * stimuli.length)]
+    );
 
     let currentTrial = 0, startTime, data = [];
     const trialNum = document.getElementById("trialNum");
+    const statusText = document.getElementById("statusText"); // ✅ เพิ่มบรรทัดนี้
     const answerBtns = document.querySelectorAll(".answer");
     let audio = new Audio();
 
     loadTrial();
 
-        function loadTrial() {
-      if (currentTrial >= totalTrials) return showConfidence(true);
+    function loadTrial(){
+      if(currentTrial >= totalTrials) return showConfidence(true);
       trialNum.textContent = currentTrial + 1;
 
       // ✅ แสดงข้อความสถานะระหว่าง stimulus
       statusText.style.display = "block";
       answerBtns.forEach(btn => (btn.disabled = true));
 
-      // โหลดวิดีโอของ trial นี้
+      // โหลดเสียงของ trial นี้
       const stim = trialOrder[currentTrial];
-      video.src = `${videoFolder}${stim}.mp4`;
+      audio.src = `${audioFolder}${stim}.mp3`;
+      audio.play();
 
       // ✅ หน่วงเวลา 3.5 วินาทีก่อนให้ตอบ
       setTimeout(() => {
@@ -68,16 +81,6 @@
         answerBtns.forEach(btn => (btn.disabled = false));
         startTime = performance.now();
       }, 3500);
-    }
-
-    function loadTrial(){
-      if(currentTrial >= totalTrials) return showConfidence(true);
-      trialNum.textContent = currentTrial + 1;
-      const stim = trialOrder[currentTrial];
-      audio.src = `${audioFolder}${stim}.mp3`;
-      audio.play();
-      startTime = performance.now();
-      answerBtns.forEach(btn=>btn.disabled=false);
     }
 
     answerBtns.forEach(btn=>{
@@ -88,9 +91,11 @@
         const correctAns=getCorrectAnswer(trueStim);
         const isCorrect=userChoice===correctAns;
 
-        data.push({pid, task:taskName, trial:currentTrial+1, true_state:trueStim, user_response:userChoice, is_correct:isCorrect, rt_sec:rt});
+        data.push({pid, task:taskName, trial:currentTrial+1, true_state:trueStim,
+          user_response:userChoice, is_correct:isCorrect, rt_sec:rt});
         currentTrial++;
-        if(currentTrial % 10===0 || currentTrial===totalTrials) showConfidence(currentTrial===totalTrials);
+        if(currentTrial % 10===0 || currentTrial===totalTrials)
+          showConfidence(currentTrial===totalTrials);
         else setTimeout(loadTrial,600);
       });
     });
