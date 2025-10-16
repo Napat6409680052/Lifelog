@@ -63,48 +63,58 @@ const conditions = ['LED', 'Beep', 'Vibrate', 'None'];
 let condition = conditions[0]; // เริ่มจาก LED ก่อน
 
 async function runTrial() {
-  const fix = document.getElementById('fixation'); // จุดโฟกัส (fixation cross) แสดงเครื่องหมาย +
+  const fix = document.getElementById('fixation');
   const box = document.getElementById('ledBox');
-  const condLabel = document.getElementById('condLabel'); // สถานะการทดลอง (condition)
-  const trialLabel = document.getElementById('trialLabel'); // ป้ายบอกลำดับ trial
-  const feedback = document.getElementById('feedback'); // พื้นที่แสดงฟีดแบ็กหลังตอบ
+  const condLabel = document.getElementById('condLabel');
+  const trialLabel = document.getElementById('trialLabel');
+  const feedback = document.getElementById('feedback');
   
-  // อัปเดตข้อความส่วนหัวให้ตรงกับสถานะปัจจุบัน
+  // ✅ สร้างข้อความสถานะ (ครั้งเดียว)
+  let statusText = document.getElementById("statusText");
+  if (!statusText) {
+    statusText = document.createElement("p");
+    statusText.id = "statusText";
+    statusText.style.cssText = "font-size:0.9em;color:#888;margin:6px 0;";
+    feedback.insertAdjacentElement("beforebegin", statusText);
+  }
+
+  // อัปเดต label ปัจจุบัน
   condLabel.textContent = `Condition: ${condition}`;
   trialLabel.textContent = `Trial ${currentTrial + 1} / ${totalTrials}`;
-  feedback.textContent = '';
-  
-  // ตั้งค่าหน้าจอก่อนเริ่มไตรอัล
-  fix.textContent = '+'; // แสดงเครื่องหมาย + เป็นสัญลักษณ์ให้เพ่ง (fixation)
-  box.style.background = 'black'; // พื้นหลัง stimulus เป็นสีดำ (ยังไม่แสดงสิ่งเร้า)
+  feedback.textContent = "";
+  fix.textContent = "+";
+  box.style.background = "black";
 
-  // — Phase 1: Fixation —
-  // หน่วงเวลาแบบสุ่ม 500–800 ms ให้ผู้เข้าร่วมเพ่งไปที่จุดโฟกัส + เพื่อควบคุมสายตา/ความพร้อม
-  await delay(rand(500, 800)); // Fixation
-  fix.textContent = '';
+  // 🕓 แสดงข้อความสถานะเทาอ่อนระหว่าง stimulus
+  statusText.textContent = "Trial นี้กำลังแสดงสัญญาณ โปรดรอสักครู่...";
+  statusText.style.display = "block";
 
-  // — Phase 2: Foreperiod —
-  // หน่วงเวลานำ (foreperiod) แบบสุ่ม 500–1500 ms เพื่อลดการเดาเวลา (anticipation)
-  await delay(rand(500, 1500)); // Foreperiod
+  // — Phase 1 : Fixation —
+  await delay(rand(500, 800));
+  fix.textContent = "";
 
- // — Phase 3: Stimulus ON —
-  // บันทึกเวลาที่เริ่มแสดงสิ่งเร้าด้วย high-resolution timer (หน่วย ms ลอยตัว)
+  // — Phase 2 : Foreperiod —
+  await delay(rand(500, 1500));
+
+  // — Phase 3 : Stimulus ON —
   startTime = performance.now();
   showStimulus(condition);
   await delay(700);
   clearStimulus();
 
- // — Phase 4: Response Window —
-  // รอผู้ใช้ตอบภายใน 2.5s
-  await delay(2500);
+  // 🕓 รอ 3.5 วินาที ก่อนเปิดให้ตอบ
+  await delay(3500);
+  statusText.style.display = "none";
 
+  // — Phase 4 : Response Window —
+  await delay(2500);
 
   if (!trials[currentTrial]) {
     trials.push({
-      pid: localStorage.getItem('pid'),
+      pid: localStorage.getItem("pid"),
       condition,
       trial: currentTrial + 1,
-      rt_sec: 'N/A',
+      rt_sec: "N/A",
       correct: 0
     });
     currentTrial++;
@@ -114,6 +124,7 @@ async function runTrial() {
     } else finishCondition();
   }
 }
+
 
 function showStimulus(type) {
   const box = document.getElementById('ledBox');
