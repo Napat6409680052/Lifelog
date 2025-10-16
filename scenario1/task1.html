@@ -10,31 +10,16 @@
 
 <body>
   <div class="container">
-    <h2>Scenario 1 (Awareness Test)</h2>
-
-    <div class="info-bar">
-      <p id="condLabel"><strong>Condition:</strong> LED (แสง)</p>
-      <p id="trialLabel"><strong>Trial:</strong> 1 / 20</p>
-    </div>
-
+    <h2>Scenario 1 - Task 1 (LED)</h2>
+    <p id="condLabel">Condition: LED</p>
+    <p id="trialLabel">Trial 1 / 20</p>
     <p id="statusText" class="status-text">Trial นี้กำลังแสดงสัญญาณ โปรดรอสักครู่...</p>
-    <hr>
 
-    <p class="question">
-      จากสัญญาณที่ท่านเห็น อุปกรณ์นี้กำลังทำงานอยู่หรือไม่ และอยู่ในสภาพใด?
-    </p>
+    <div id="fixation">+</div>
+    <div id="ledBox" class="stimulus-area"></div>
+    <div id="feedback"></div>
 
-    <div id="fixation" class="fixation">+</div>
-
-    <div id="ledBox" class="stimulus-area">
-      <video id="ledVideo" width="250" autoplay muted playsinline></video>
-    </div>
-
-    <div id="feedback" class="feedback"></div>
-
-    <div class="btn-area">
-      <button id="respondBtn" class="primary">ตอบ</button>
-    </div>
+    <button id="respondBtn" class="primary">ตอบ</button>
   </div>
 </body>
 </html>
