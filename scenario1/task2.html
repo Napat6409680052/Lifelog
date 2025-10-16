@@ -56,32 +56,31 @@
 
     let currentTrial = 0, startTime, data = [];
     const trialNum = document.getElementById("trialNum");
-    const statusText = document.getElementById("statusText"); // ✅ เพิ่มบรรทัดนี้
+    const statusText = document.getElementById("statusText"); // ✅ ดึง element มาควบคุม
     const answerBtns = document.querySelectorAll(".answer");
     let audio = new Audio();
 
     loadTrial();
 
-    function loadTrial(){
-      if(currentTrial >= totalTrials) return showConfidence(true);
-      trialNum.textContent = currentTrial + 1;
+    function loadTrial() {
+  if (currentTrial >= totalTrials) return showConfidence(true);
+  trialNum.textContent = currentTrial + 1;
 
-      // ✅ แสดงข้อความสถานะระหว่าง stimulus
-      statusText.style.display = "block";
-      answerBtns.forEach(btn => (btn.disabled = true));
+  // ✅ แสดงข้อความสถานะระหว่าง stimulus
+  statusText.style.display = "block";            // แสดงข้อความเทาอ่อน
+  answerBtns.forEach(btn => (btn.disabled = true)); // ปิดปุ่มชั่วคราว
 
-      // โหลดเสียงของ trial นี้
-      const stim = trialOrder[currentTrial];
-      audio.src = `${audioFolder}${stim}.mp3`;
-      audio.play();
+  // โหลด stimulus (ในที่นี้คือวิดีโอ)
+  const stim = trialOrder[currentTrial];
+  video.src = `${videoFolder}${stim}.mp4`;
 
-      // ✅ หน่วงเวลา 3.5 วินาทีก่อนให้ตอบ
-      setTimeout(() => {
-        statusText.style.display = "none";
-        answerBtns.forEach(btn => (btn.disabled = false));
-        startTime = performance.now();
-      }, 3500);
-    }
+  // ✅ หน่วงเวลา 3.5 วินาทีก่อนให้ตอบ
+  setTimeout(() => {
+    statusText.style.display = "none";              // ซ่อนข้อความ
+    answerBtns.forEach(btn => (btn.disabled = false)); // เปิดปุ่มให้ตอบ
+    startTime = performance.now();
+  }, 3500);
+}
 
     answerBtns.forEach(btn=>{
       btn.addEventListener("click",()=>{
