@@ -110,3 +110,57 @@ button {
   padding: 12px;
   border-radius: 8px;
 }
+
+#statusText {
+  font-size: 0.9em;
+  color: #888;
+  margin: 8px 0;
+  text-align: center;
+}
+
+/* ===== ขยายสไตล์สำหรับหน้าทดลองทุก Task ===== */
+.info-bar {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95em;
+  color: #444;
+  margin-bottom: 6px;
+}
+
+.fixation {
+  text-align: center;
+  font-size: 3em;
+  color: #555;
+  margin: 20px 0;
+}
+
+.stimulus-area {
+  text-align: center;
+  margin: 15px 0 25px 0;
+}
+
+.feedback {
+  text-align: center;
+  color: #777;
+  font-size: 0.9em;
+  min-height: 20px;
+}
+
+.btn-area {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+button.answer {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+button.answer:hover {
+  background: #005dc1;
+}
+
