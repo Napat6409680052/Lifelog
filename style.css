@@ -164,3 +164,9 @@ button.answer:hover {
   background: #005dc1;
 }
 
+.status-text {
+  font-size: 0.9em;
+  color: #888;
+  margin-bottom: 10px;
+  display: none;
+}
