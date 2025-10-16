@@ -45,6 +45,10 @@
     const trialNum = document.getElementById("trialNum");
     const answerBtns = document.querySelectorAll(".answer");
 
+window.addEventListener("load", () => {
+      loadTrial(); // เริ่มแสดง stimulus เมื่อหน้าโหลด
+    });
+    
     loadTrial();
 
  function loadTrial() {
