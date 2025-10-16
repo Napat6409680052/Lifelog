@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Scenario 1 - Task 4 (Original)</title>
   <link rel="stylesheet" href="../style.css">
+  <style>
+    .status-text {
+      font-size: 0.9em;
+      color: #888;
+      margin-bottom: 10px;
+      display: none;
+    }
+  </style>
 </head>
 
 <body>
@@ -12,13 +20,15 @@
     <h2>Scenario 1 (Awareness Test)</h2>
     <p><strong>Task <span id="taskOrder">4/4</span> : <span id="taskName"></span></strong></p>
     <p><strong>Trial <span id="trialNum">1</span> / 20</strong></p>
-    <hr>
 
+    <!-- ✅ เพิ่มข้อความสถานะเทาอ่อน -->
+    <p id="statusText" class="status-text">Trial นี้กำลังแสดงสัญญาณ โปรดรอสักครู่...</p>
+
+    <hr>
     <p class="question">จากสัญญาณที่ท่านเห็น อุปกรณ์นี้กำลังทำงานอยู่หรือไม่ และอยู่ในสภาพใด?</p>
 
-    <!-- ✅ แก้ path ของรูปให้ชี้ออกจาก scenario1 -->
     <div class="stimulus-area">
-     <img src="./pic/original.png" width="250" alt="device original">
+      <img src="./pic/original.png" width="250" alt="device original">
     </div>
 
     <div class="btn-area">
@@ -30,13 +40,10 @@
   </div>
 
   <script>
-    // ✅ ดึงชื่อ task จากลำดับสุ่มใน localStorage
     const pid = localStorage.getItem("pid") || "00";
     const taskOrder = JSON.parse(localStorage.getItem("taskOrder")) || ["LED","Sound","Vibration","None"];
-    const taskIndex = 4; // ไฟล์นี้คือ Task ลำดับที่ 4
-    const taskName = taskOrder[taskIndex - 1]; // ชื่อตามลำดับสุ่ม
-
-    // ✅ แก้ให้แสดงชื่อ task ที่สุ่มจริง
+    const taskIndex = 4;
+    const taskName = taskOrder[taskIndex - 1];
     document.getElementById("taskName").textContent = taskName;
 
     const totalTrials = 20;
@@ -45,15 +52,25 @@
     let currentTrial = 0, startTime, data = [];
 
     const trialNum = document.getElementById("trialNum");
+    const statusText = document.getElementById("statusText");
     const answerBtns = document.querySelectorAll(".answer");
 
     loadTrial();
 
-    function loadTrial(){
-      if(currentTrial >= totalTrials) return showConfidence(true);
+    function loadTrial() {
+      if (currentTrial >= totalTrials) return showConfidence(true);
       trialNum.textContent = currentTrial + 1;
-      startTime = performance.now();
-      answerBtns.forEach(btn => btn.disabled = false);
+
+      // ✅ แสดงข้อความสถานะระหว่าง stimulus
+      statusText.style.display = "block";
+      answerBtns.forEach(btn => (btn.disabled = true));
+
+      // จำลองช่วง stimulus ประมาณ 2.5 วินาที
+      setTimeout(() => {
+        statusText.style.display = "none";
+        answerBtns.forEach(btn => (btn.disabled = false));
+        startTime = performance.now();
+      }, 2500);
     }
 
     answerBtns.forEach(btn => {
@@ -80,12 +97,12 @@
       });
     });
 
-    function showConfidence(isEnd = false){
+    function showConfidence(isEnd = false) {
       const conf = prompt("คุณมั่นใจแค่ไหนว่ารับรู้ได้ถูกต้อง?\n([1] ไม่มั่นใจเลย – [5] มั่นใจที่สุด)", "");
       const confidence = parseInt(conf) || 0;
       data.push({ pid, task: taskName, confidence_1_5: confidence });
 
-      if(isEnd){
+      if (isEnd) {
         alert("จบ Task 4/4 แล้ว\nคลิกตกลงเพื่อไป Scenario 2");
         saveAndNext();
       } else {
@@ -94,7 +111,7 @@
       }
     }
 
-    function saveAndNext(){
+    function saveAndNext() {
       localStorage.setItem(`scenario1_data_${taskName}`, JSON.stringify(data));
       window.location.href = "../summary.html";
     }
