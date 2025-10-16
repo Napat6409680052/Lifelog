@@ -60,7 +60,8 @@ let currentTrial = 0; // นับรอบการทดลอง
 const totalTrials = 20; // รอบทั้งหมดต่อ condition
 let startTime = 0; // เวลาเริ่ม stimulus
 const conditions = ['LED', 'Beep', 'Vibrate', 'None'];
-let condition = conditions[0]; // เริ่มจาก LED ก่อน
+let condition = localStorage.getItem("currentTask") || "LED";
+
 
 async function runTrial() {
   const fix = document.getElementById('fixation');

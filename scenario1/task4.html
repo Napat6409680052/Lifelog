@@ -40,6 +40,8 @@
   </div>
 
   <script>
+    localStorage.setItem("currentTask", taskName);
+
     const pid = localStorage.getItem("pid") || "00";
     const taskOrder = JSON.parse(localStorage.getItem("taskOrder")) || ["LED","Sound","Vibration","None"];
     const taskIndex = 4;
