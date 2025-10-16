@@ -5,36 +5,100 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Scenario 1 - Task 2 (Sound)</title>
   <link rel="stylesheet" href="../style.css">
-  <script defer src="../script.js"></script>
 </head>
 
 <body>
   <div class="container">
     <h2>Scenario 1 (Awareness Test)</h2>
-
-    <div class="info-bar">
-      <p id="condLabel"><strong>Condition:</strong> Sound (เสียง)</p>
-      <p id="trialLabel"><strong>Trial:</strong> 1 / 20</p>
-    </div>
-
-    <p id="statusText" class="status-text">Trial นี้กำลังแสดงสัญญาณ โปรดรอสักครู่...</p>
+    <p><strong>Task <span id="taskOrder">2/4</span> : <span id="taskName"></span></strong></p>
+    <p><strong>Trial <span id="trialNum">1</span> / 20</strong></p>
     <hr>
 
-    <p class="question">
-      จากสัญญาณที่ท่านเห็น อุปกรณ์นี้กำลังทำงานอยู่หรือไม่ และอยู่ในสภาพใด?
-    </p>
+    <p class="question">จากสัญญาณที่ท่านเห็น อุปกรณ์นี้กำลังทำงานอยู่หรือไม่ และอยู่ในสภาพใด?</p>
 
-    <div id="fixation" class="fixation">+</div>
-
-    <div id="ledBox" class="stimulus-area">
-      <img src="./pic/picsound.png" width="250" alt="sound device">
+    <div class="stimulus-area">
+      <img src="./pic/picsound.png" width="250" alt="device sound">
     </div>
-
-    <div id="feedback" class="feedback"></div>
 
     <div class="btn-area">
-      <button id="respondBtn" class="primary">ตอบ</button>
+      <button class="answer" data-choice="1">ทำงานอยู่และปกติ</button>
+      <button class="answer" data-choice="2">ทำงานอยู่แต่ผิดปกติ (เล็กน้อย)</button>
+      <button class="answer" data-choice="3">ทำงานอยู่แต่ผิดปกติ (รุนแรง)</button>
+      <button class="answer" data-choice="4">ไม่มีการทำงาน</button>
     </div>
   </div>
+
+  <script>
+    const pid = localStorage.getItem("pid") || "00";
+    const taskOrder = JSON.parse(localStorage.getItem("taskOrder")) || ["LED","Sound","Vibration","None"];
+    const taskIndex = 2;
+    const taskName = taskOrder[taskIndex - 1];
+    document.getElementById("taskName").textContent = taskName;
+
+    const totalTrials = 20;
+    const stimuli = ["normal","minor","critical","none"];
+    const audioFolder = "./s1Sound/";
+    const trialOrder = Array.from({length: totalTrials}, () => stimuli[Math.floor(Math.random() * stimuli.length)]);
+
+    let currentTrial = 0, startTime, data = [];
+    const trialNum = document.getElementById("trialNum");
+    const answerBtns = document.querySelectorAll(".answer");
+    let audio = new Audio();
+
+    loadTrial();
+
+    function loadTrial(){
+      if(currentTrial >= totalTrials) return showConfidence(true);
+      trialNum.textContent = currentTrial + 1;
+      const stim = trialOrder[currentTrial];
+      audio.src = `${audioFolder}${stim}.mp3`;
+      audio.play();
+      startTime = performance.now();
+      answerBtns.forEach(btn=>btn.disabled=false);
+    }
+
+    answerBtns.forEach(btn=>{
+      btn.addEventListener("click",()=>{
+        const rt=((performance.now()-startTime)/1000).toFixed(2);
+        const userChoice=+btn.dataset.choice;
+        const trueStim=trialOrder[currentTrial];
+        const correctAns=getCorrectAnswer(trueStim);
+        const isCorrect=userChoice===correctAns;
+
+        data.push({pid, task:taskName, trial:currentTrial+1, true_state:trueStim, user_response:userChoice, is_correct:isCorrect, rt_sec:rt});
+        currentTrial++;
+        if(currentTrial % 10===0 || currentTrial===totalTrials) showConfidence(currentTrial===totalTrials);
+        else setTimeout(loadTrial,600);
+      });
+    });
+
+    function getCorrectAnswer(stim){
+      switch(stim){
+        case "normal": return 1;
+        case "minor": return 2;
+        case "critical": return 3;
+        case "none": return 4;
+      }
+    }
+
+    function showConfidence(isEnd=false){
+      const conf = prompt("คุณมั่นใจแค่ไหนว่ารับรู้ได้ถูกต้อง?\n(1–5)","");
+      const confidence=parseInt(conf)||0;
+      data.push({pid, task:taskName, confidence_1_5:confidence});
+
+      if(isEnd){
+        alert(`จบ Task ${taskIndex}/4 แล้ว → ทำ Task ถัดไป`);
+        saveAndNext();
+      }else{
+        alert("ขอบคุณค่ะ ดำเนินการต่อ");
+        loadTrial();
+      }
+    }
+
+    function saveAndNext(){
+      localStorage.setItem(`scenario1_data_${taskName}`,JSON.stringify(data));
+      window.location.href=`task${taskIndex+1}.html`;
+    }
+  </script>
 </body>
 </html>
