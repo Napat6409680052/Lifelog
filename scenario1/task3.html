@@ -3,32 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scenario 1 - Task 3 (Vibration)</title>
+  <title>Scenario 1 - Task</title>
   <link rel="stylesheet" href="../style.css">
-  <style>
-    .status-text {
-      font-size: 0.9em;
-      color: #888;
-      margin-bottom: 10px;
-      display: none;
-      text-align: center;
-    }
-  </style>
 </head>
 
 <body>
   <div class="container">
-    <h2>Scenario 1 (Awareness Test)</h2>
-    <p><strong>Task <span id="taskOrder">3/4</span> : <span id="taskName"></span></strong></p>
+    <h2 class="title">Scenario 1 (Awareness Test)</h2>
+    <p><strong>Task <span id="taskOrder">3/4</span> : <span id="taskName">Vibration</span></strong></p>
     <p><strong>Trial <span id="trialNum">1</span> / 20</strong></p>
-
-    <!-- ✅ ข้อความสถานะเทาอ่อน -->
-    <p id="statusText" class="status-text">Trial นี้กำลังแสดงสัญญาณ โปรดรอสักครู่...</p>
     <hr>
 
-    <p class="question">
-      จากสัญญาณที่ท่านเห็น อุปกรณ์นี้กำลังทำงานอยู่หรือไม่ และอยู่ในสภาพใด?
-    </p>
+    <p class="question">จากสัญญาณที่ท่านเห็น อุปกรณ์นี้กำลังทำงานอยู่หรือไม่ และอยู่ในสภาพใด?</p>
 
     <div class="stimulus-area">
       <img src="./pic/picvibrate.png" width="250" alt="device vibration">
@@ -43,75 +29,40 @@
   </div>
 
   <script>
-    // -------------------------------
-    // ✅ ส่วนกำหนดค่าเริ่มต้น
-    // -------------------------------
-    localStorage.setItem("currentTask", taskName);
-
     const pid = localStorage.getItem("pid") || "00";
     const taskOrder = JSON.parse(localStorage.getItem("taskOrder")) || ["LED","Sound","Vibration","None"];
     const taskIndex = 3;
     const taskName = taskOrder[taskIndex - 1];
-    document.getElementById("taskName").textContent = taskName;
-
     const totalTrials = 20;
-    const stimuli = ["normal", "minor", "critical", "none"];
-    const trialOrder = Array.from({ length: totalTrials }, 
-      () => stimuli[Math.floor(Math.random() * stimuli.length)]);
 
+    const stimuli = ["normal", "minor", "critical", "none"];
+    const trialOrder = Array.from({ length: totalTrials },
+      () => stimuli[Math.floor(Math.random() * stimuli.length)]);
     let currentTrial = 0, startTime, data = [];
+
     const trialNum = document.getElementById("trialNum");
-    const statusText = document.getElementById("statusText");
     const answerBtns = document.querySelectorAll(".answer");
 
-    // -------------------------------
-    // ✅ ฟังก์ชันเล่นการสั่น
-    // -------------------------------
     function vibratePattern(stim) {
       switch (stim) {
-        case "normal":
-          navigator.vibrate([1000]); // สั่น 1 วิ
-          break;
-        case "minor":
-          navigator.vibrate([200, 200, 200]); // สั่น 3 ครั้ง
-          break;
-        case "critical":
-          navigator.vibrate([100, 100, 100, 100, 100, 100]); // สั่น 6 ครั้ง
-          break;
-        case "none":
-          navigator.vibrate(0); // ไม่สั่นเลย
-          break;
+        case "normal": navigator.vibrate([1000]); break;
+        case "minor": navigator.vibrate([200,200,200]); break;
+        case "critical": navigator.vibrate([100,100,100,100,100,100]); break;
+        case "none": navigator.vibrate(0); break;
       }
     }
 
-    // -------------------------------
-    // ✅ เริ่มรอบทดลอง
-    // -------------------------------
     loadTrial();
 
     function loadTrial() {
-      if (currentTrial >= totalTrials) return showConfidence(true);
+      if (currentTrial >= totalTrials) { showConfidence(true); return; }
       trialNum.textContent = currentTrial + 1;
-
-      // แสดงข้อความรอ
-      statusText.style.display = "block";
-      answerBtns.forEach(btn => (btn.disabled = true));
-
-      // เล่นสัญญาณสั่นตาม stimulus
       const stim = trialOrder[currentTrial];
       vibratePattern(stim);
-
-      // หน่วงเวลา 3.5 วิ ก่อนให้ตอบ
-      setTimeout(() => {
-        statusText.style.display = "none";
-        answerBtns.forEach(btn => (btn.disabled = false));
-        startTime = performance.now();
-      }, 3500);
+      startTime = performance.now();
+      answerBtns.forEach(btn => btn.disabled = false);
     }
 
-    // -------------------------------
-    // ✅ บันทึกผลการตอบ
-    // -------------------------------
     answerBtns.forEach(btn => {
       btn.addEventListener("click", () => {
         const rt = ((performance.now() - startTime) / 1000).toFixed(2);
@@ -120,11 +71,9 @@
         const correctAns = getCorrectAnswer(trueStim);
         const isCorrect = userChoice === correctAns;
 
-        data.push({
-          pid, task: taskName, trial: currentTrial + 1,
+        data.push({ pid, task: taskName, trial: currentTrial + 1,
           true_state: trueStim, user_response: userChoice,
-          is_correct: isCorrect, rt_sec: rt
-        });
+          is_correct: isCorrect, rt_sec: rt });
 
         currentTrial++;
         if (currentTrial % 10 === 0 || currentTrial === totalTrials)
@@ -133,9 +82,6 @@
       });
     });
 
-    // -------------------------------
-    // ✅ ฟังก์ชันตรวจคำตอบ
-    // -------------------------------
     function getCorrectAnswer(stim) {
       switch (stim) {
         case "normal": return 1;
@@ -145,16 +91,14 @@
       }
     }
 
-    // -------------------------------
-    // ✅ ฟังก์ชันความมั่นใจ
-    // -------------------------------
     function showConfidence(isEnd = false) {
       const conf = prompt("คุณมั่นใจแค่ไหนว่ารับรู้ได้ถูกต้อง?\n([1] ไม่มั่นใจเลย – [5] มั่นใจที่สุด)", "");
       const confidence = parseInt(conf) || 0;
       data.push({ pid, task: taskName, confidence_1_5: confidence });
 
       if (isEnd) {
-        alert("จบ Task 3/4 แล้ว\nคลิกตกลงเพื่อทำ Task ถัดไป");
+        if (taskIndex === 4) alert("จบ Task 4/4 แล้ว\nคลิกตกลงเพื่อไป Scenario 2");
+        else alert(`จบ Task ${taskIndex}/4 แล้ว\nคลิกตกลงเพื่อทำ Task ถัดไป`);
         saveAndNext();
       } else {
         alert("ขอบคุณค่ะ กรุณาทำต่อในชุดถัดไป");
@@ -162,12 +106,13 @@
       }
     }
 
-    // -------------------------------
-    // ✅ ฟังก์ชันบันทึกและไปหน้าถัดไป
-    // -------------------------------
     function saveAndNext() {
       localStorage.setItem(`scenario1_data_${taskName}`, JSON.stringify(data));
-      window.location.href = `task${taskIndex + 1}.html`;
+      const nextIndex = taskIndex + 1;
+      if (nextIndex <= 4)
+        window.location.href = `task${nextIndex}.html`;
+      else
+        window.location.href = "../summary.html";
     }
   </script>
 </body>

@@ -22,7 +22,7 @@
     <p><strong>Trial <span id="trialNum">1</span> / 20</strong></p>
 
     <!-- ✅ เพิ่มข้อความสถานะเทาอ่อน -->
-    <p id="statusText" class="status-text">Trial นี้กำลังแสดงสัญญาณ โปรดรอสักครู่...</p>
+    <p id="statusText" class="status-text">Trial นี้กำลังเริ่มแสดงสัญญาณ โปรดรอสักครู่...</p>
 
     <hr>
     <p class="question">จากสัญญาณที่ท่านเห็น อุปกรณ์นี้กำลังทำงานอยู่หรือไม่ และอยู่ในสภาพใด?</p>
@@ -40,8 +40,6 @@
   </div>
 
   <script>
-    localStorage.setItem("currentTask", taskName);
-
     const pid = localStorage.getItem("pid") || "00";
     const taskOrder = JSON.parse(localStorage.getItem("taskOrder")) || ["LED","Sound","Vibration","None"];
     const taskIndex = 4;
@@ -72,7 +70,7 @@
         statusText.style.display = "none";
         answerBtns.forEach(btn => (btn.disabled = false));
         startTime = performance.now();
-      }, 3500);
+      }, 2500);
     }
 
     answerBtns.forEach(btn => {
