@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lifelogging Usability Test</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    .img-caption {
+      text-align: center;
+      font-size: 0.9em;
+      color: #555;
+      margin-top: 6px;
+    }
+  </style>
 </head>
 
 <body>
@@ -31,25 +39,24 @@
     </p>
 
     <img src="device.jpg" width="300" alt="Device Example" style="display:block;margin:20px auto;">
+    <p class="img-caption">รูปภาพนี้คืออุปกรณ์ Lifelogging ที่ใช้ในการทดลอง</p>
 
     <button id="toInstruction" class="primary">ไปหน้า Scenario 1 Instruction</button>
   </div>
 
   <script>
-    // === ตรวจและบันทึก PID ก่อนเข้าสู่ Scenario 1 ===
     document.getElementById("toInstruction").addEventListener("click", () => {
-      const pidInput = document.getElementById("pid");
-      const pid = pidInput.value.trim();
+      const pid = document.getElementById("pid").value.trim();
 
       if (!pid) {
         alert("กรุณากรอก Participant ID ก่อนเริ่มการทดสอบ");
-        pidInput.focus();
         return;
       }
 
-      // บันทึกลง localStorage เพื่อใช้ในทุกหน้า
+      // บันทึก PID และไปหน้า instruction_scenario1.html
       localStorage.setItem("pid", pid);
-
-      // ไปหน้าคำแนะนำของ Scenario 1
       window.location.href = "instruction_scenario1.html";
-    })
+    });
+  </script>
+</body>
+</html>
