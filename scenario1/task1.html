@@ -51,6 +51,7 @@
       if (thisFile.includes("task4")) return "None";
     })();
     const taskIndex = taskOrder.indexOf(taskName) + 1;
+    document.getElementById("taskOrder").textContent = `${taskIndex}/4`;
 
     const totalTrials = 20;
     const stimuli = ["green","yellow","red","off"];
