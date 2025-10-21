@@ -117,7 +117,7 @@
     }
 
     function showConfidence(isEnd=false) {
-      const conf = prompt("คุณมั่นใจแค่ไหนว่ารับรู้ได้ถูกต้อง?\n(1–5)","");
+      const conf = prompt("คุณมั่นใจแค่ไหนว่ารับรู้ได้ถูกต้อง?\n\n( [1] ไม่มั่นใจเลย - [5] มั่นใจที่สุด )","5");
       const confidence = parseInt(conf)||0;
       data.push({pid, task: taskName, confidence_1_5:confidence});
 
@@ -142,11 +142,21 @@
         "None": "task4.html"
       };
       if (nextTask) {
-        window.location.href = fileMap[nextTask];
-      } else {
-        alert("จบ Task 4/4 แล้ว → ไปหน้า Summary");
-        window.location.href = "../summary.html";
-      }
+      // 🔹 ไป task ถัดไปตามลำดับละติน
+      window.location.href = fileMap[nextTask];
+    } else {
+      // ✅ ถ้าครบ 4/4 แล้ว แสดงปุ่ม "ทำ Scenario 2"
+      const container = document.querySelector(".container");
+      container.innerHTML = `
+        <h2>🎉 จบ Scenario 1 เรียบร้อยแล้ว</h2>
+        <p>ขอบคุณที่เข้าร่วมการทดสอบ<br>
+        คุณสามารถกดปุ่มด้านล่างเพื่อไปยัง Scenario 2 ต่อได้เลย</p>
+        <button id="toSc2" class="primary">ไป Scenario 2</button>
+      `;
+      document.getElementById("toSc2").addEventListener("click", () => {
+        window.location.href = "../instruction-sc2.html";
+      });
+    }
     }
   </script>
 </body>

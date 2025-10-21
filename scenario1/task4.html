@@ -96,7 +96,7 @@
     });
 
     function showConfidence(isEnd=false) {
-      const conf = prompt("คุณมั่นใจแค่ไหนว่ารับรู้ได้ถูกต้อง?\n(1–5)","");
+      const conf = prompt("คุณมั่นใจแค่ไหนว่ารับรู้ได้ถูกต้อง?\n\n( [1] ไม่มั่นใจเลย - [5] มั่นใจที่สุด )","5");
       const confidence = parseInt(conf)||0;
       data.push({pid, task: taskName, confidence_1_5:confidence});
 
