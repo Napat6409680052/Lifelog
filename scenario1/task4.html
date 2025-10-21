@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scenario 1 - Awareness Test</title>
+  <title>Scenario 1 - Awareness Test (None)</title>
   <link rel="stylesheet" href="../style.css">
   <style>
     .status-text {
@@ -18,17 +18,18 @@
 <body>
   <div class="container">
     <h2>Scenario 1 (Awareness Test)</h2>
-    <p><strong>Task <span id="taskOrder">1/4</span></strong></p>
+    <p><strong>Task <span id="taskOrder">4/4</span></strong></p>
     <p><strong>Trial <span id="trialNum">1</span> / 20</strong></p>
 
-    <!-- ✅ เพิ่มข้อความสถานะเทาอ่อน -->
+    <!-- ✅ ข้อความสถานะเทาอ่อน -->
     <p id="statusText" class="status-text">Trial นี้กำลังเริ่มแสดงสัญญาณ โปรดรอสักครู่...</p>
 
     <hr>
-    <p class="question">จากสัญญาณที่ท่านเห็น อุปกรณ์นี้กำลังทำงานอยู่หรือไม่ และอยู่ในสภาพใด?</p>
+
+    <p class="question">ใน Trial นี้ไม่มีสัญญาณจากอุปกรณ์ ปรากฏขึ้น กรุณาตอบตามความเข้าใจของท่านว่าอุปกรณ์ “กำลังทำงานอยู่หรือไม่ และอยู่ในสภาพใด”</p>
 
     <div class="stimulus-area">
-      <img src="./pic/original.png" width="250" alt="device original">
+      <img src="./pic/original.png" width="250" alt="device none">
     </div>
 
     <div class="btn-area">
@@ -42,19 +43,11 @@
   <script>
     const pid = localStorage.getItem("pid") || "00";
     const taskOrder = JSON.parse(localStorage.getItem("taskOrder")) || ["LED","Sound","Vibration","None"];
-    const taskName = (function() {
-      const thisFile = location.pathname.split("/").pop(); // เช่น task3.html
-      if (thisFile.includes("task1")) return "LED";
-      if (thisFile.includes("task2")) return "Sound";
-      if (thisFile.includes("task3")) return "Vibration";
-      if (thisFile.includes("task4")) return "None";
-    })();
-    const taskIndex = taskOrder.indexOf(taskName) + 1; // หาตำแหน่งจริงในชุดละติน
-   
+    const taskName = "None";
+    const taskIndex = taskOrder.indexOf(taskName) + 1;
 
     const totalTrials = 20;
-    const stimuli = ["off"];
-    const trialOrder = Array.from({ length: totalTrials }, () => "off");
+    const trialOrder = Array.from({length: totalTrials}, () => "none");
     let currentTrial = 0, startTime, data = [];
 
     const trialNum = document.getElementById("trialNum");
@@ -67,15 +60,15 @@
       if (currentTrial >= totalTrials) return showConfidence(true);
       trialNum.textContent = currentTrial + 1;
 
-      // ✅ แสดงข้อความสถานะระหว่าง stimulus
+      // 🔹 แสดงข้อความเตือนและปิดปุ่ม
       statusText.style.display = "block";
-      answerBtns.forEach(btn => (btn.disabled = true));
+      answerBtns.forEach(btn => btn.disabled = true);
 
-      // จำลองช่วง stimulus ประมาณ 2.5 วินาที
+      // 🔹 หน่วง 2.5 วินาทีก่อนเริ่มจับเวลา
       setTimeout(() => {
         statusText.style.display = "none";
-        answerBtns.forEach(btn => (btn.disabled = false));
-        startTime = performance.now();
+        startTime = performance.now();   // เริ่มจับ RT หลังหมดช่วงหน่วง
+        answerBtns.forEach(btn => btn.disabled = false);
       }, 2500);
     }
 
@@ -83,59 +76,55 @@
       btn.addEventListener("click", () => {
         const rt = ((performance.now() - startTime) / 1000).toFixed(2);
         const userChoice = +btn.dataset.choice;
+        const trueStim = "none";
         const correctAns = 4;
         const isCorrect = userChoice === correctAns;
 
         data.push({
-          pid, task: taskName,
-          trial: currentTrial + 1,
-          true_state: "off",
-          user_response: userChoice,
-          is_correct: isCorrect,
-          rt_sec: rt
+          pid, task: taskName, trial: currentTrial + 1,
+          true_state: trueStim, user_response: userChoice,
+          is_correct: isCorrect, rt_sec: rt
         });
 
         currentTrial++;
         if (currentTrial % 10 === 0 || currentTrial === totalTrials)
           showConfidence(currentTrial === totalTrials);
-        else
-          setTimeout(loadTrial, 600);
+        else setTimeout(loadTrial, 600);
       });
     });
 
-    function showConfidence(isEnd = false) {
-      const conf = prompt("คุณมั่นใจแค่ไหนว่ารับรู้ได้ถูกต้อง?\n([1] ไม่มั่นใจเลย – [5] มั่นใจที่สุด)", "");
-      const confidence = parseInt(conf) || 0;
-      data.push({ pid, task: taskName, confidence_1_5: confidence });
+    function showConfidence(isEnd=false) {
+      const conf = prompt("คุณมั่นใจแค่ไหนว่ารับรู้ได้ถูกต้อง?\n(1–5)","");
+      const confidence = parseInt(conf)||0;
+      data.push({pid, task: taskName, confidence_1_5:confidence});
 
       if (isEnd) {
-        alert("จบ Task 4/4 แล้ว\nคลิกตกลงเพื่อไป Scenario 2");
+        alert(`จบ Task ${taskIndex}/4 แล้ว → ไปหน้า Summary`);
         saveAndNext();
       } else {
-        alert("ขอบคุณค่ะ กรุณาทำต่อในชุดถัดไป");
+        alert("ขอบคุณค่ะ ดำเนินการต่อ");
         loadTrial();
       }
     }
 
     function saveAndNext() {
-  localStorage.setItem(`scenario1_data_${taskName}`, JSON.stringify(data));
-  const nextIndex = taskIndex;
-  const taskOrder = JSON.parse(localStorage.getItem("taskOrder"));
-  const nextTask = taskOrder[nextIndex]; // ตัวถัดไปในชุดละติน
-  const fileMap = {
-    "LED": "task1.html",
-    "Sound": "task2.html",
-    "Vibration": "task3.html",
-    "None": "task4.html"
-  };
-  if (nextTask) {
-    window.location.href = fileMap[nextTask];
-  } else {
-    alert("จบ Task 4/4 แล้ว → ไปหน้า Summary");
-    window.location.href = "../summary.html";
-  }
-}
-
+      localStorage.setItem(`scenario1_data_${taskName}`, JSON.stringify(data));
+      const nextIndex = taskIndex;
+      const order = JSON.parse(localStorage.getItem("taskOrder"));
+      const nextTask = order[nextIndex];
+      const fileMap = {
+        "LED": "task1.html",
+        "Sound": "task2.html",
+        "Vibration": "task3.html",
+        "None": "task4.html"
+      };
+      if (nextTask) {
+        window.location.href = fileMap[nextTask];
+      } else {
+        alert("จบ Task 4/4 แล้ว → ไปหน้า Summary");
+        window.location.href = "../summary.html";
+      }
+    }
   </script>
 </body>
 </html>

@@ -133,3 +133,21 @@ function finishCondition() {
     window.location.href = "summary.html";
   }
 }
+
+function loadTrial() {
+  if (currentTrial >= totalTrials) return showConfidence(true);
+  trialNum.textContent = currentTrial + 1;
+
+  // ✅ ขึ้นข้อความเตือน และปิดปุ่มไว้ก่อน
+  statusText.style.display = "block";
+  answerBtns.forEach(btn => btn.disabled = true);
+
+  // ✅ หน่วง 2.5 วินาทีก่อนเริ่ม stimulus
+  setTimeout(() => {
+    statusText.style.display = "none";  // ซ่อนข้อความ
+    playStimulus();                     // 🔹 เริ่มเล่น stimulus
+    startTime = performance.now();      // 🔹 เริ่มจับเวลา RT หลัง stimulus เริ่ม
+    answerBtns.forEach(btn => btn.disabled = false);
+  }, 2500);
+}
+

@@ -3,8 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scenario 1 - Awareness Test</title>
+  <title>Scenario 1 - Awareness Test (LED)</title>
   <link rel="stylesheet" href="../style.css">
+  <style>
+    .status-text {
+      font-size: 0.9em;
+      color: #888;
+      margin-bottom: 10px;
+      display: none;
+    }
+  </style>
 </head>
 
 <body>
@@ -12,12 +20,16 @@
     <h2>Scenario 1 (Awareness Test)</h2>
     <p><strong>Task <span id="taskOrder">1/4</span></strong></p>
     <p><strong>Trial <span id="trialNum">1</span> / 20</strong></p>
+
+    <!-- ✅ ข้อความสถานะเทาอ่อน -->
+    <p id="statusText" class="status-text">Trial นี้กำลังเริ่มแสดงสัญญาณ โปรดรอสักครู่...</p>
+
     <hr>
 
     <p class="question">จากสัญญาณที่ท่านเห็น อุปกรณ์นี้กำลังทำงานอยู่หรือไม่ และอยู่ในสภาพใด?</p>
 
     <div class="stimulus-area">
-      <video id="ledVideo" width="250" autoplay muted playsinline></video>
+      <video id="ledVideo" width="250" muted playsinline></video>
     </div>
 
     <div class="btn-area">
@@ -32,68 +44,76 @@
     const pid = localStorage.getItem("pid") || "00";
     const taskOrder = JSON.parse(localStorage.getItem("taskOrder")) || ["LED","Sound","Vibration","None"];
     const taskName = (function() {
-      const thisFile = location.pathname.split("/").pop(); // เช่น task3.html
+      const thisFile = location.pathname.split("/").pop();
       if (thisFile.includes("task1")) return "LED";
       if (thisFile.includes("task2")) return "Sound";
       if (thisFile.includes("task3")) return "Vibration";
       if (thisFile.includes("task4")) return "None";
     })();
-    const taskIndex = taskOrder.indexOf(taskName) + 1; // หาตำแหน่งจริงในชุดละติน
-   
+    const taskIndex = taskOrder.indexOf(taskName) + 1;
+
     const totalTrials = 20;
-    const stimuli = ["green", "yellow", "red", "off"];
+    const stimuli = ["green","yellow","red","off"];
     const videoFolder = "./s1LED/";
-    const trialOrder = Array.from({length: totalTrials}, () => stimuli[Math.floor(Math.random() * stimuli.length)]);
+    const trialOrder = Array.from({length: totalTrials},
+      () => stimuli[Math.floor(Math.random() * stimuli.length)]);
 
     let currentTrial = 0, startTime, data = [];
     const video = document.getElementById("ledVideo");
     const trialNum = document.getElementById("trialNum");
+    const statusText = document.getElementById("statusText");
     const answerBtns = document.querySelectorAll(".answer");
 
-window.addEventListener("load", () => {
-      loadTrial(); // เริ่มแสดง stimulus เมื่อหน้าโหลด
-    });
+    // ✅ เริ่มจาก trial แรก
+    window.addEventListener("load", loadTrial);
 
-    loadTrial();
+    function loadTrial() {
+      if (currentTrial >= totalTrials) return showConfidence(true);
+      trialNum.textContent = currentTrial + 1;
 
- function loadTrial() {
-  if (currentTrial >= totalTrials) return showConfidence(true);
-  trialNum.textContent = currentTrial + 1;
+      // 🔸 แสดงข้อความเตือนระหว่างหน่วง
+      statusText.style.display = "block";
+      answerBtns.forEach(btn => btn.disabled = true);
 
-  // ✅ โหลด stimulus ตามลำดับ
-  const stim = trialOrder[currentTrial];
-  video.src = `${videoFolder}${stim}.mp4`;
-  video.load();
-  video.play(); // เรียกเล่นทันทีโดยไม่ต้องมี catch
+      // 🔸 หน่วง 2.5 วินาที ก่อนเริ่มเล่นวิดีโอ
+      setTimeout(() => {
+        statusText.style.display = "none";
+        playStimulus();                 // เริ่มเล่นวิดีโอ
+        startTime = performance.now();  // เริ่มจับ RT
+        answerBtns.forEach(btn => btn.disabled = false);
+      }, 2500);
+    }
 
-  // ✅ ปิดปุ่มระหว่างแสดง stimulus
-  answerBtns.forEach(btn => btn.disabled = true);
-
-  // ✅ หน่วงเวลา 3.5 วินาทีก่อนให้ตอบ
-  setTimeout(() => {
-    answerBtns.forEach(btn => btn.disabled = false);
-    startTime = performance.now();
-  }, 3500);
-}
-
+    function playStimulus() {
+      const stim = trialOrder[currentTrial];
+      video.src = `${videoFolder}${stim}.mp4`;
+      video.currentTime = 0;
+      video.play();
+    }
 
     answerBtns.forEach(btn => {
       btn.addEventListener("click", () => {
-        const rt = ((performance.now() - startTime)/1000).toFixed(2);
+        const rt = ((performance.now() - startTime) / 1000).toFixed(2);
         const userChoice = +btn.dataset.choice;
         const trueStim = trialOrder[currentTrial];
         const correctAns = getCorrectAnswer(trueStim);
         const isCorrect = userChoice === correctAns;
 
-        data.push({pid, task: taskName, trial: currentTrial+1, true_state:trueStim, user_response:userChoice, is_correct:isCorrect, rt_sec:rt});
+        data.push({
+          pid, task: taskName, trial: currentTrial + 1,
+          true_state: trueStim, user_response: userChoice,
+          is_correct: isCorrect, rt_sec: rt
+        });
+
         currentTrial++;
-        if (currentTrial % 10 === 0 || currentTrial === totalTrials) showConfidence(currentTrial === totalTrials);
+        if (currentTrial % 10 === 0 || currentTrial === totalTrials)
+          showConfidence(currentTrial === totalTrials);
         else setTimeout(loadTrial, 600);
       });
     });
 
-    function getCorrectAnswer(stim){
-      switch(stim){
+    function getCorrectAnswer(stim) {
+      switch (stim) {
         case "green": return 1;
         case "yellow": return 2;
         case "red": return 3;
@@ -101,39 +121,38 @@ window.addEventListener("load", () => {
       }
     }
 
-    function showConfidence(isEnd=false){
+    function showConfidence(isEnd = false) {
       const conf = prompt("คุณมั่นใจแค่ไหนว่ารับรู้ได้ถูกต้อง?\n(1–5)","");
       const confidence = parseInt(conf)||0;
       data.push({pid, task: taskName, confidence_1_5:confidence});
 
-      if(isEnd){
+      if (isEnd) {
         alert(`จบ Task ${taskIndex}/4 แล้ว → ทำ Task ถัดไป`);
         saveAndNext();
-      }else{
+      } else {
         alert("ขอบคุณค่ะ ดำเนินการต่อ");
         loadTrial();
       }
     }
 
     function saveAndNext() {
-  localStorage.setItem(`scenario1_data_${taskName}`, JSON.stringify(data));
-  const nextIndex = taskIndex;
-  const taskOrder = JSON.parse(localStorage.getItem("taskOrder"));
-  const nextTask = taskOrder[nextIndex]; // ตัวถัดไปในชุดละติน
-  const fileMap = {
-    "LED": "task1.html",
-    "Sound": "task2.html",
-    "Vibration": "task3.html",
-    "None": "task4.html"
-  };
-  if (nextTask) {
-    window.location.href = fileMap[nextTask];
-  } else {
-    alert("จบ Task 4/4 แล้ว → ไปหน้า Summary");
-    window.location.href = "../summary.html";
-  }
-}
-
+      localStorage.setItem(`scenario1_data_${taskName}`, JSON.stringify(data));
+      const nextIndex = taskIndex;
+      const order = JSON.parse(localStorage.getItem("taskOrder"));
+      const nextTask = order[nextIndex];
+      const fileMap = {
+        "LED": "task1.html",
+        "Sound": "task2.html",
+        "Vibration": "task3.html",
+        "None": "task4.html"
+      };
+      if (nextTask) {
+        window.location.href = fileMap[nextTask];
+      } else {
+        alert("จบ Task 4/4 แล้ว → ไปหน้า Summary");
+        window.location.href = "../summary.html";
+      }
+    }
   </script>
 </body>
 </html>
