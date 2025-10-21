@@ -43,6 +43,8 @@
     const taskOrder = JSON.parse(localStorage.getItem("taskOrder")) || ["LED","Sound","Vibration","None"];
     const taskName = "Sound";
     const taskIndex = taskOrder.indexOf(taskName) + 1;
+    document.getElementById("taskOrder").textContent = `${taskIndex}/4`;
+
 
     const totalTrials = 20;
     const stimuli = ["normal","minor","critical","none"];
