@@ -31,9 +31,14 @@
   <script>
     const pid = localStorage.getItem("pid") || "00";
     const taskOrder = JSON.parse(localStorage.getItem("taskOrder")) || ["LED","Sound","Vibration","None"];
-    const taskIndex = 2;
-    const taskName = taskOrder[taskIndex - 1];
-   
+    const taskName = (function() {
+      const thisFile = location.pathname.split("/").pop(); // เช่น task3.html
+      if (thisFile.includes("task1")) return "LED";
+      if (thisFile.includes("task2")) return "Sound";
+      if (thisFile.includes("task3")) return "Vibration";
+      if (thisFile.includes("task4")) return "None";
+    })();
+    const taskIndex = taskOrder.indexOf(taskName) + 1; // หาตำแหน่งจริงในชุดละติน
 
     const totalTrials = 20;
     const stimuli = ["normal","minor","critical","none"];
@@ -95,10 +100,25 @@
       }
     }
 
-    function saveAndNext(){
-      localStorage.setItem(`scenario1_data_${taskName}`,JSON.stringify(data));
-      window.location.href=`task${taskIndex+1}.html`;
-    }
+    function saveAndNext() {
+  localStorage.setItem(`scenario1_data_${taskName}`, JSON.stringify(data));
+  const nextIndex = taskIndex;
+  const taskOrder = JSON.parse(localStorage.getItem("taskOrder"));
+  const nextTask = taskOrder[nextIndex]; // ตัวถัดไปในชุดละติน
+  const fileMap = {
+    "LED": "task1.html",
+    "Sound": "task2.html",
+    "Vibration": "task3.html",
+    "None": "task4.html"
+  };
+  if (nextTask) {
+    window.location.href = fileMap[nextTask];
+  } else {
+    alert("จบ Task 4/4 แล้ว → ไปหน้า Summary");
+    window.location.href = "../summary.html";
+  }
+}
+
   </script>
 </body>
 </html>

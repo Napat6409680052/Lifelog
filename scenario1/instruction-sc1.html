@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Scenario 1 Instruction</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="../style.css"> <!-- แก้ path ให้ถูก ถ้าไฟล์อยู่ใน scenario1 -->
 </head>
 
 <body>
@@ -19,31 +19,45 @@
       และจะไม่นำไปเปิดเผย
     </p>
 
-    <img src="device.jpg" width="300" alt="Device Example">
+    <img src="../device.jpg" width="300" alt="Device Example">
 
     <button id="startBtn" class="primary">เริ่ม Scenario 1</button>
   </div>
 
   <script>
-    document.getElementById("startBtn").addEventListener("click", () => {
-      // ใช้ PID จาก localStorage ที่กรอกในหน้า Home
-      const pid = localStorage.getItem("pid");
-      if (!pid) {
-        alert("กรุณากรอก Participant ID ที่หน้าแรกก่อน");
-        window.location.href = "index.html";
-        return;
-      }
+document.getElementById("startBtn").addEventListener("click", () => {
+  const pid = localStorage.getItem("pid");
+  if (!pid) {
+    alert("กรุณากรอก Participant ID ที่หน้าแรกก่อน");
+    window.location.href = "index.html";
+    return;
+  }
 
-      // สุ่มลำดับ task (เหมือนเดิม)
-      const tasks = ["LED", "Sound", "Vibration", "None"];
-      for (let i = tasks.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [tasks[i], tasks[j]] = [tasks[j], tasks[i]];
-      }
-      localStorage.setItem("taskOrder", JSON.stringify(tasks));
+  // ===== ละตินสแควร์ 4 แบบ =====
+  const latinOrders = {
+    "1": ["LED", "Sound", "Vibration", "None"],
+    "2": ["Sound", "Vibration", "None", "LED"],
+    "3": ["Vibration", "None", "LED", "Sound"],
+    "4": ["None", "LED", "Sound", "Vibration"]
+  };
 
-      window.location.href = "scenario1/task1.html";
-    });
-  </script>
+  // ===== สุ่มเลือกชุดละติน (1–4) =====
+  const order = String(Math.floor(Math.random() * 4) + 1);
+  const taskOrder = latinOrders[order];
+  localStorage.setItem("order", order);
+  localStorage.setItem("taskOrder", JSON.stringify(taskOrder));
+
+  // ===== ไป task แรกของชุดนั้น =====
+  const firstTask = taskOrder[0];
+  const fileMap = {
+    "LED": "task1.html",
+    "Sound": "task2.html",
+    "Vibration": "task3.html",
+    "None": "task4.html"
+  };
+  window.location.href = fileMap[firstTask];
+});
+</script>
+
 </body>
 </html>
