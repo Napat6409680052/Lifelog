@@ -6,15 +6,14 @@
   <title>Scenario 1 - Awareness Test (Sound)</title>
   <link rel="stylesheet" href="../style.css">
   <style>
-    .status-text {
-      font-size: 0.9em;
-      color: #888;
-      margin-bottom: 10px;
-      display: none;
-    }
+    .status-text{font-size:.9em;color:#888;margin-bottom:10px;display:none}
+    .center{text-align:center}
+    .conf-btn{margin:0 6px;padding:8px 14px;border-radius:8px;border:1px solid #ccc;cursor:pointer}
+    .conf-btn.selected{background:#3b82f6;color:#fff;border-color:#3b82f6}
+    #confirmBtn[disabled]{opacity:.5;cursor:not-allowed}
+    .note-msg{margin-top:14px;color:#555}
   </style>
 </head>
-
 <body>
   <div class="container">
     <h2>Scenario 1 (Awareness Test)</h2>
@@ -36,6 +35,21 @@
       <button class="answer" data-choice="3">ทำงานอยู่แต่ผิดปกติ (รุนแรง)</button>
       <button class="answer" data-choice="4">ไม่มีการทำงาน</button>
     </div>
+
+    <!-- ความมั่นใจ -->
+    <div id="confidenceArea" class="center" style="display:none;margin-top:22px;">
+      <p>คุณมั่นใจแค่ไหนว่ารับรู้ได้ถูกต้อง?<br>( [1] ไม่มั่นใจเลย – [5] มั่นใจที่สุด )</p>
+      <div id="confButtons" style="margin:10px 0;">
+        <button class="conf-btn" data-conf="1">1</button>
+        <button class="conf-btn" data-conf="2">2</button>
+        <button class="conf-btn" data-conf="3">3</button>
+        <button class="conf-btn" data-conf="4">4</button>
+        <button class="conf-btn" data-conf="5">5</button>
+      </div>
+      <button id="confirmBtn" class="primary" disabled>ตกลง</button>
+    </div>
+
+    <p id="nextMsg" class="note-msg" style="display:none;"></p>
   </div>
 
   <script>
@@ -45,32 +59,38 @@
     const taskIndex = taskOrder.indexOf(taskName) + 1;
     document.getElementById("taskOrder").textContent = `${taskIndex}/4`;
 
-
     const totalTrials = 20;
     const stimuli = ["normal","minor","critical","none"];
     const audioFolder = "./s1Sound/";
-    const trialOrder = Array.from({length: totalTrials}, () => stimuli[Math.floor(Math.random() * stimuli.length)]);
+    const trialOrder = Array.from({length: totalTrials}, () => stimuli[Math.floor(Math.random()*stimuli.length)]);
     let currentTrial = 0, startTime, data = [];
 
     const trialNum = document.getElementById("trialNum");
     const statusText = document.getElementById("statusText");
     const answerBtns = document.querySelectorAll(".answer");
 
+    const confidenceArea = document.getElementById("confidenceArea");
+    const confButtons = document.querySelectorAll(".conf-btn");
+    const confirmBtn = document.getElementById("confirmBtn");
+    const nextMsg = document.getElementById("nextMsg");
+    let selectedConfidence = null; let lastAnswer = null;
+
     loadTrial();
 
     function loadTrial() {
-      if (currentTrial >= totalTrials) return showConfidence(true);
+      if (currentTrial >= totalTrials) return endTask();
       trialNum.textContent = currentTrial + 1;
 
-      // ขึ้นข้อความเตือนและปิดปุ่ม
       statusText.style.display = "block";
       answerBtns.forEach(btn => btn.disabled = true);
+      confidenceArea.style.display = "none";
+      selectedConfidence = null; lastAnswer = null; confirmBtn.disabled = true;
+      confButtons.forEach(b => b.classList.remove('selected'));
 
-      // หน่วงก่อนเล่นเสียง
       setTimeout(() => {
         statusText.style.display = "none";
         playStimulus();
-        startTime = performance.now(); // เริ่มจับ RT หลังเริ่มเสียง
+        startTime = performance.now(); // ✅ เริ่มนับ RT หลังครบ 2.5s:contentReference[oaicite:10]{index=10}
         answerBtns.forEach(btn => btn.disabled = false);
       }, 2500);
     }
@@ -83,22 +103,16 @@
 
     answerBtns.forEach(btn => {
       btn.addEventListener("click", () => {
-        const rt = ((performance.now() - startTime) / 1000).toFixed(2);
+        const rt = ((performance.now() - startTime) / 1000).toFixed(3);
         const userChoice = +btn.dataset.choice;
         const trueStim = trialOrder[currentTrial];
         const correctAns = getCorrectAnswer(trueStim);
         const isCorrect = userChoice === correctAns;
 
-        data.push({
-          pid, task: taskName, trial: currentTrial + 1,
-          true_state: trueStim, user_response: userChoice,
-          is_correct: isCorrect, rt_sec: rt
-        });
+        lastAnswer = { pid, task: taskName, trial: currentTrial + 1,
+          true_state: trueStim, user_response: userChoice, is_correct: isCorrect, rt_sec: rt };
 
-        currentTrial++;
-        if (currentTrial % 10 === 0 || currentTrial === totalTrials)
-          showConfidence(currentTrial === totalTrials);
-        else setTimeout(loadTrial, 600);
+        showConfidenceSection();
       });
     });
 
@@ -111,50 +125,43 @@
       }
     }
 
-    function showConfidence(isEnd=false) {
-      const conf = prompt("คุณมั่นใจแค่ไหนว่ารับรู้ได้ถูกต้อง?\n( [1] ไม่มั่นใจเลย - [5] มั่นใจที่สุด )","5");
-      const confidence = parseInt(conf)||0;
-      data.push({pid, task: taskName, confidence_1_5:confidence});
+    function showConfidenceSection() {
+      confidenceArea.style.display = "block";
+      confirmBtn.disabled = true;
+      selectedConfidence = null;
+      confButtons.forEach(btn => {
+        btn.onclick = () => {
+          confButtons.forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+          selectedConfidence = parseInt(btn.dataset.conf);
+          confirmBtn.disabled = false;
+        };
+      });
 
-      if (isEnd) {
-        alert(`จบ Task ${taskIndex}/4 แล้ว → ทำ Task ถัดไป`);
-        saveAndNext();
-      } else {
-        alert("ขอบคุณค่ะ ดำเนินการต่อ");
-        loadTrial();
-      }
-    }
-
-  // ✅ เวอร์ชันใหม่ของ saveAndNext (รองรับละติน)
-    function saveAndNext() {
-      // 🧾 1) บันทึกข้อมูลของ task ปัจจุบัน
-      localStorage.setItem(`scenario1_data_${taskName}`, JSON.stringify(data));
-
-      // 🧠 2) อ่านลำดับละตินที่ถูกตั้งจากหน้าแรก
-      const order = JSON.parse(localStorage.getItem("taskOrder")) || ["LED", "Sound", "Vibration", "None"];
-      const currentIndex = order.indexOf(taskName);
-      const nextTask = order[currentIndex + 1]; // หา task ถัดไปในชุดละติน
-
-      // 🗺️ 3) mapping ชื่อ task → ไฟล์
-      const fileMap = {
-        "LED": "task1.html",
-        "Sound": "task2.html",
-        "Vibration": "task3.html",
-        "None": "task4.html"
+      confirmBtn.onclick = () => {
+        data.push({ ...lastAnswer, confidence: selectedConfidence });
+        confidenceArea.style.display = "none";
+        currentTrial++;
+        setTimeout(loadTrial, 300);
       };
+    }
 
-      // 🧩 4) ตรวจว่ามี task ถัดไปไหม
+    function endTask() {
+      localStorage.setItem(`scenario1_data_${taskName}`, JSON.stringify(data));
+      const order = taskOrder;
+      const currentIndex = order.indexOf(taskName);
+      const nextTask = order[currentIndex + 1];
+      const fileMap = { "LED":"task1.html","Sound":"task2.html","Vibration":"task3.html","None":"task4.html" };
+
       if (nextTask) {
-        // 🔹 ยังมี task ถัดไป
-        alert(`✅ จบ Task ${currentIndex + 1}/4 แล้ว → ไป Task ถัดไป (${nextTask})`);
-        window.location.href = fileMap[nextTask];
+        nextMsg.style.display = "block";
+        nextMsg.textContent = `✅ จบ Task ${currentIndex + 1}/4 แล้ว → กำลังไป Task ถัดไป (${nextTask})...`;
+        setTimeout(()=> window.location.href = fileMap[nextTask], 1000);
       } else {
-        // ✅ ครบ 4/4 แล้ว
-        alert("🎉 จบครบ 4/4 แล้ว ขอบคุณค่ะ กำลังไปยัง Scenario 2...");
-        window.location.href = "../scenario2/instruction-sc2.html";
+        nextMsg.style.display = "block";
+        nextMsg.innerHTML = `🎉 จบครบ 4/4 แล้ว <br><br><a href="../scenario2/instruction-sc2.html" class="primary" style="display:inline-block;padding:10px 16px;border-radius:8px;color:#fff;background:#007bff;text-decoration:none;">เริ่ม Instruction 2</a>`;
       }
     }
-    
   </script>
 </body>
 </html>
