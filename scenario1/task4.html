@@ -141,8 +141,9 @@
         nextMsg.textContent = `✅ จบ Task ${currentIndex + 1}/4 แล้ว → กำลังไป Task ถัดไป (${nextTask})...`;
         setTimeout(()=> window.location.href = fileMap[nextTask], 1000);
       } else {
-        nextMsg.style.display = "block";
-        nextMsg.innerHTML = `🎉 จบครบ 4/4 แล้ว <br><br><a href="../scenario2/instruction-sc2.html" class="primary" style="display:inline-block;padding:10px 16px;border-radius:8px;color:#fff;background:#007bff;text-decoration:none;">เริ่ม Instruction 2</a>`;
+        // ✅ เปลี่ยนจากแสดงข้อความในหน้า เป็น alert เด้งแทน
+        alert("🎉 จบครบ 4/4 แล้ว\nกดตกลงเพื่อไปยัง Scenario 2");
+        window.location.href = "../scenario2/instruction-sc2.html";
       }
     }
   </script>

@@ -6,24 +6,26 @@
   <title>Scenario 1 - Awareness Test (LED)</title>
   <link rel="stylesheet" href="../style.css">
   <style>
-    .status-text{font-size:.9em;color:#888;margin-bottom:10px;display:none}
-    .center{text-align:center}
-    .conf-btn{margin:0 6px;padding:8px 14px;border-radius:8px;border:1px solid #ccc;cursor:pointer}
-    .conf-btn.selected{background:#3b82f6;color:#fff;border-color:#3b82f6}
-    #confirmBtn[disabled]{opacity:.5;cursor:not-allowed}
-    .note-msg{margin-top:14px;color:#555}
+    .status-text {
+      font-size: 0.9em;
+      color: #888;
+      margin-bottom: 10px;
+      display: none;
+    }
   </style>
 </head>
+
 <body>
   <div class="container">
     <h2>Scenario 1 (Awareness Test)</h2>
     <p><strong>Task <span id="taskOrder">1/4</span></strong></p>
     <p><strong>Trial <span id="trialNum">1</span> / 20</strong></p>
 
-    <!-- ✅ ข้อความสถานะ 2.5 วิ (คงไว้ตามเดิม) -->
+    <!-- ✅ ข้อความสถานะเทาอ่อน -->
     <p id="statusText" class="status-text">Trial นี้กำลังเริ่มแสดงสัญญาณ โปรดรอสักครู่...</p>
 
     <hr>
+
     <p class="question">คำถาม : จากสัญญาณที่ท่านเห็นและรับรู้ได้ อุปกรณ์นี้กำลังทำงานอยู่หรือไม่ และ อยู่ในสภาพใด ?</p>
 
     <div class="stimulus-area">
@@ -36,64 +38,49 @@
       <button class="answer" data-choice="3">ทำงานอยู่แต่ผิดปกติ (รุนแรง)</button>
       <button class="answer" data-choice="4">ไม่มีการทำงาน</button>
     </div>
-
-    <!-- ✅ ความมั่นใจแบบ Inline + ปุ่มตกลง -->
-    <div id="confidenceArea" class="center" style="display:none;margin-top:22px;">
-      <p>คุณมั่นใจแค่ไหนว่ารับรู้ได้ถูกต้อง?<br>( [1] ไม่มั่นใจเลย – [5] มั่นใจที่สุด )</p>
-      <div id="confButtons" style="margin:10px 0;">
-        <button class="conf-btn" data-conf="1">1</button>
-        <button class="conf-btn" data-conf="2">2</button>
-        <button class="conf-btn" data-conf="3">3</button>
-        <button class="conf-btn" data-conf="4">4</button>
-        <button class="conf-btn" data-conf="5">5</button>
-      </div>
-      <button id="confirmBtn" class="primary" disabled>ตกลง</button>
-    </div>
-
-    <p id="nextMsg" class="note-msg" style="display:none;"></p>
   </div>
 
   <script>
     const pid = localStorage.getItem("pid") || "00";
     const taskOrder = JSON.parse(localStorage.getItem("taskOrder")) || ["LED","Sound","Vibration","None"];
-    const taskName = "LED";
+    const taskName = (function() {
+      const thisFile = location.pathname.split("/").pop();
+      if (thisFile.includes("task1")) return "LED";
+      if (thisFile.includes("task2")) return "Sound";
+      if (thisFile.includes("task3")) return "Vibration";
+      if (thisFile.includes("task4")) return "None";
+    })();
     const taskIndex = taskOrder.indexOf(taskName) + 1;
     document.getElementById("taskOrder").textContent = `${taskIndex}/4`;
 
     const totalTrials = 20;
     const stimuli = ["green","yellow","red","off"];
     const videoFolder = "./s1LED/";
-    const trialOrder = Array.from({length: totalTrials}, () => stimuli[Math.floor(Math.random()*stimuli.length)]);
+    const trialOrder = Array.from({length: totalTrials},
+      () => stimuli[Math.floor(Math.random() * stimuli.length)]);
 
     let currentTrial = 0, startTime, data = [];
     const video = document.getElementById("ledVideo");
     const trialNum = document.getElementById("trialNum");
     const statusText = document.getElementById("statusText");
     const answerBtns = document.querySelectorAll(".answer");
-    const confidenceArea = document.getElementById("confidenceArea");
-    const confButtons = document.querySelectorAll(".conf-btn");
-    const confirmBtn = document.getElementById("confirmBtn");
-    const nextMsg = document.getElementById("nextMsg");
-    let selectedConfidence = null;
-    let lastAnswer = null;
 
+    // ✅ เริ่มจาก trial แรก
     window.addEventListener("load", loadTrial);
 
     function loadTrial() {
-      if (currentTrial >= totalTrials) return endTask();
+      if (currentTrial >= totalTrials) return showConfidence(true);
       trialNum.textContent = currentTrial + 1;
 
-      // ✅ Fixation/status 2.5s → ค่อยเริ่มนับ RT (ตรรกะนี้ตรงกับเดิม):contentReference[oaicite:8]{index=8}
+      // 🔸 แสดงข้อความเตือนระหว่างหน่วง
       statusText.style.display = "block";
       answerBtns.forEach(btn => btn.disabled = true);
-      confidenceArea.style.display = "none";
-      selectedConfidence = null; lastAnswer = null; confirmBtn.disabled = true;
-      confButtons.forEach(b => b.classList.remove('selected'));
 
+      // 🔸 หน่วง 2.5 วินาที ก่อนเริ่มเล่นวิดีโอ
       setTimeout(() => {
         statusText.style.display = "none";
-        playStimulus();
-        startTime = performance.now(); // ✅ เริ่มนับ RT หลังครบ 2.5s
+        playStimulus();                 // เริ่มเล่นวิดีโอ
+        startTime = performance.now();  // เริ่มจับ RT
         answerBtns.forEach(btn => btn.disabled = false);
       }, 2500);
     }
@@ -107,17 +94,22 @@
 
     answerBtns.forEach(btn => {
       btn.addEventListener("click", () => {
-        const rt = ((performance.now() - startTime) / 1000).toFixed(3);
+        const rt = ((performance.now() - startTime) / 1000).toFixed(2);
         const userChoice = +btn.dataset.choice;
         const trueStim = trialOrder[currentTrial];
         const correctAns = getCorrectAnswer(trueStim);
         const isCorrect = userChoice === correctAns;
 
-        // เก็บคำตอบไว้ก่อน แล้วรอรับ confidence
-        lastAnswer = { pid, task: taskName, trial: currentTrial + 1,
-          true_state: trueStim, user_response: userChoice, is_correct: isCorrect, rt_sec: rt };
+        data.push({
+          pid, task: taskName, trial: currentTrial + 1,
+          true_state: trueStim, user_response: userChoice,
+          is_correct: isCorrect, rt_sec: rt
+        });
 
-        showConfidenceSection();
+        currentTrial++;
+        if (currentTrial % 10 === 0 || currentTrial === totalTrials)
+          showConfidence(currentTrial === totalTrials);
+        else setTimeout(loadTrial, 600);
       });
     });
 
@@ -130,48 +122,51 @@
       }
     }
 
-    function showConfidenceSection() {
-      confidenceArea.style.display = "block";
-      confirmBtn.disabled = true;
-      selectedConfidence = null;
-      confButtons.forEach(btn => {
-        btn.onclick = () => {
-          confButtons.forEach(b => b.classList.remove('selected'));
-          btn.classList.add('selected');
-          selectedConfidence = parseInt(btn.dataset.conf);
-          confirmBtn.disabled = false;
-        };
-      });
+    function showConfidence(isEnd = false) {
+      const conf = prompt("คุณมั่นใจแค่ไหนว่ารับรู้ได้ถูกต้อง?\n( [1] ไม่มั่นใจเลย - [5] มั่นใจที่สุด )","5");
+      const confidence = parseInt(conf)||0;
+      data.push({pid, task: taskName, confidence_1_5:confidence});
 
-      confirmBtn.onclick = () => {
-        data.push({ ...lastAnswer, confidence: selectedConfidence });
-        confidenceArea.style.display = "none";
-        currentTrial++;
-        // ไป trial ถัดไป
-        setTimeout(loadTrial, 300);
-      };
-    }
-
-    function endTask() {
-      // บันทึกข้อมูล task นี้
-      localStorage.setItem(`scenario1_data_${taskName}`, JSON.stringify(data));
-
-      // คำนวณ task ถัดไปตามละติน
-      const order = taskOrder;
-      const currentIndex = order.indexOf(taskName);
-      const nextTask = order[currentIndex + 1];
-      const fileMap = { "LED":"task1.html","Sound":"task2.html","Vibration":"task3.html","None":"task4.html" };
-
-      if (nextTask) {
-        nextMsg.style.display = "block";
-        nextMsg.textContent = `✅ จบ Task ${currentIndex + 1}/4 แล้ว → กำลังไป Task ถัดไป (${nextTask})...`;
-        setTimeout(()=> window.location.href = fileMap[nextTask], 1000);
+      if (isEnd) {
+        alert(`จบ Task ${taskIndex}/4 แล้ว → ทำ Task ถัดไป`);
+        saveAndNext();
       } else {
-        // ครบ 4/4
-        nextMsg.style.display = "block";
-        nextMsg.innerHTML = `🎉 จบครบ 4/4 แล้ว <br><br><a href="../scenario2/instruction-sc2.html" class="primary" style="display:inline-block;padding:10px 16px;border-radius:8px;color:#fff;background:#007bff;text-decoration:none;">เริ่ม Instruction 2</a>`;
+        alert("ขอบคุณค่ะ ดำเนินการต่อ");
+        loadTrial();
       }
     }
+
+  // ✅ เวอร์ชันใหม่ของ saveAndNext (รองรับละติน)
+    function saveAndNext() {
+      // 🧾 1) บันทึกข้อมูลของ task ปัจจุบัน
+      localStorage.setItem(`scenario1_data_${taskName}`, JSON.stringify(data));
+
+      // 🧠 2) อ่านลำดับละตินที่ถูกตั้งจากหน้าแรก
+      const order = JSON.parse(localStorage.getItem("taskOrder")) || ["LED", "Sound", "Vibration", "None"];
+      const currentIndex = order.indexOf(taskName);
+      const nextTask = order[currentIndex + 1]; // หา task ถัดไปในชุดละติน
+
+      // 🗺️ 3) mapping ชื่อ task → ไฟล์
+      const fileMap = {
+        "LED": "task1.html",
+        "Sound": "task2.html",
+        "Vibration": "task3.html",
+        "None": "task4.html"
+      };
+
+      // 🧩 4) ตรวจว่ามี task ถัดไปไหม
+      if (nextTask) {
+        // 🔹 ยังมี task ถัดไป
+        alert(`✅ จบ Task ${currentIndex + 1}/4 แล้ว → ไป Task ถัดไป (${nextTask})`);
+        window.location.href = fileMap[nextTask];
+      } else {
+        // ✅ เปลี่ยนจากแสดงข้อความในหน้า เป็น alert เด้งแทน
+        alert("🎉 จบครบ 4/4 แล้ว\nกดตกลงเพื่อไปยัง Scenario 2");
+        window.location.href = "../scenario2/instruction-sc2.html";
+      }
+    }
+
+
   </script>
 </body>
 </html>
