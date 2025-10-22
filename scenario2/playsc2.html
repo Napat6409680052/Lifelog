@@ -1,140 +1,187 @@
-<script>
-const images = ["bicon.png", "bictext.png", "onlybotton.png", "original.png"];
-const buttonAreas = {
-  "bicon.png":      { x: 0.250, y: 0.190, w: 0.080, h: 0.065 },
-  "bictext.png":    { x: 0.250, y: 0.190, w: 0.080, h: 0.065 },
-  "onlybotton.png": { x: 0.250, y: 0.190, w: 0.080, h: 0.065 },
-  "original.png":   null
-};
-
-const latinOrders = [
-  [0, 1, 2, 3],
-  [1, 2, 3, 0],
-  [2, 3, 0, 1],
-  [3, 0, 1, 2]
-];
-
-const pid = localStorage.getItem("pid") || "Unknown";
-const group = localStorage.getItem("group") || "N/A";
-const orderIndex = (parseInt(pid.replace(/\D/g, "")) - 1) % 4;
-const trialOrder = latinOrders[orderIndex].map(i => images[i]);
-
-let current = 0;
-let correct = 0;
-let wrong = 0;
-let clickCount = 0;      // ✅ จำนวนคลิกทั้งหมด
-let clickLogs = [];      // ✅ log การกดทั้งหมด
-let timeLeft = 30;
-let timer = null;
-let startTime = 0;
-let reactionTime = null;
-const resultsPerImage = [];
-
-const imgEl = document.getElementById("testImage");
-const timerEl = document.getElementById("timer");
-const correctEl = document.getElementById("correct");
-const wrongEl = document.getElementById("wrong");
-const progressEl = document.getElementById("progress");
-
-function loadImage() {
-  correct = 0;
-  wrong = 0;
-  clickCount = 0;
-  clickLogs = [];
-  reactionTime = null;
-  correctEl.textContent = 0;
-  wrongEl.textContent = 0;
-
-  imgEl.src = "picscenario2/" + trialOrder[current];
-  progressEl.textContent = `ภาพ ${current + 1} / ${trialOrder.length}`;
-
-  startTime = performance.now();
-  clearInterval(timer);
-  timeLeft = 30;
-  timerEl.textContent = timeLeft;
-
-  timer = setInterval(() => {
-    timeLeft--;
-    timerEl.textContent = timeLeft;
-    if (timeLeft <= 0) {
-      clearInterval(timer);
-      askConfidence();
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scenario 2 - Easy Interface Test</title>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    body {
+      font-family: "Sarabun", sans-serif;
+      background: #f8f9fa;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
     }
-  }, 1000);
-}
-
-imgEl.addEventListener("click", (e) => {
-  clickCount++; // ✅ นับจำนวนคลิกทั้งหมด
-
-  const rect = imgEl.getBoundingClientRect();
-  const x = (e.clientX - rect.left) / rect.width;
-  const y = (e.clientY - rect.top) / rect.height;
-  const imgName = trialOrder[current];
-  const area = buttonAreas[imgName];
-  let isCorrect = false;
-
-  if (area && x >= area.x && x <= area.x + area.w &&
-      y >= area.y && y <= area.y + area.h) {
-    correct++;
-    isCorrect = true;
-    if (reactionTime === null) {
-      reactionTime = performance.now() - startTime;
+    .container {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      max-width: 480px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
     }
-  } else {
-    wrong++;
-  }
+    img {
+      max-width: 340px;
+      border-radius: 10px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.15);
+      margin-top: 10px;
+    }
+    #timer {
+      font-weight: bold;
+      color: #3b82f6;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Scenario 2 (Easy Interface Test)</h2>
+    <p id="progress">ภาพ 1 / 4</p>
 
-  // ✅ เก็บ log การคลิกแต่ละครั้ง
-  clickLogs.push({
-    x: x.toFixed(3),
-    y: y.toFixed(3),
-    isCorrect
-  });
+    <img id="testImage" src="" alt="interface">
 
-  correctEl.textContent = correct;
-  wrongEl.textContent = wrong;
-});
+    <p>⏱ เวลาที่เหลือ: <span id="timer">30</span> วินาที</p>
+    <p>✅ ถูก: <span id="correct">0</span> | ❌ ผิด: <span id="wrong">0</span></p>
+  </div>
 
-function askConfidence() {
-  clearInterval(timer);
-  const conf = prompt(
-    "⏰ หมดเวลาแล้ว!\nคุณมั่นใจแค่ไหนว่าระบุตำแหน่งถูกต้อง?\n( [1] ไม่มั่นใจเลย – [5] มั่นใจที่สุด )"
-  );
-
-  const solved = reactionTime !== null; // ✅ คลิกถูกสักครั้งไหม
-
-  // ✅ เก็บผลทั้งหมด
-  resultsPerImage.push({
-    image: trialOrder[current],
-    correct,
-    wrong,
-    total_clicks: clickCount,
-    solved,
-    confidence: conf || "-",
-    clicks: clickLogs
-  });
-
-  nextImage();
-}
-
-function nextImage() {
-  current++;
-  if (current < trialOrder.length) {
-    alert("➡️ กำลังเปลี่ยนไปภาพถัดไป...");
-    loadImage();
-  } else {
-    // ✅ จบแล้ว
-    const result = {
-      scenario: "Scenario 2",
-      pid,
-      group,
-      trials: resultsPerImage
+  <script>
+    const images = ["bicon.png", "bictext.png", "onlybotton.png", "original.png"];
+    const buttonAreas = {
+      "bicon.png":      { x: 0.250, y: 0.190, w: 0.080, h: 0.065 },
+      "bictext.png":    { x: 0.250, y: 0.190, w: 0.080, h: 0.065 },
+      "onlybotton.png": { x: 0.250, y: 0.190, w: 0.080, h: 0.065 },
+      "original.png":   null
     };
-    localStorage.setItem("result_scenario2", JSON.stringify(result));
-    alert("✅ จบการทดสอบ Scenario 2 แล้ว!");
-    window.location.href = "../summary.html";
-  }
-}
 
-loadImage();
-</script>
+    const latinOrders = [
+      [0, 1, 2, 3],
+      [1, 2, 3, 0],
+      [2, 3, 0, 1],
+      [3, 0, 1, 2]
+    ];
+
+    const pid = localStorage.getItem("pid") || "Unknown";
+    const group = localStorage.getItem("group") || "N/A";
+    const orderIndex = (parseInt(pid.replace(/\D/g, "")) - 1) % 4;
+    const trialOrder = latinOrders[orderIndex].map(i => images[i]);
+
+    let current = 0;
+    let correct = 0;
+    let wrong = 0;
+    let clickCount = 0;       // ✅ จำนวนคลิกทั้งหมด
+    let clickLogs = [];       // ✅ เก็บพิกัดการกดทั้งหมด
+    let timeLeft = 30;
+    let timer = null;
+    let startTime = 0;
+    let reactionTime = null;
+    const resultsPerImage = [];
+
+    const imgEl = document.getElementById("testImage");
+    const timerEl = document.getElementById("timer");
+    const correctEl = document.getElementById("correct");
+    const wrongEl = document.getElementById("wrong");
+    const progressEl = document.getElementById("progress");
+
+    function loadImage() {
+      correct = 0;
+      wrong = 0;
+      clickCount = 0;
+      clickLogs = [];
+      reactionTime = null;
+      correctEl.textContent = 0;
+      wrongEl.textContent = 0;
+
+      imgEl.src = "picscenario2/" + trialOrder[current];
+      progressEl.textContent = `ภาพ ${current + 1} / ${trialOrder.length}`;
+
+      startTime = performance.now();
+      clearInterval(timer);
+      timeLeft = 30;
+      timerEl.textContent = timeLeft;
+
+      timer = setInterval(() => {
+        timeLeft--;
+        timerEl.textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          askConfidence();
+        }
+      }, 1000);
+    }
+
+    imgEl.addEventListener("click", (e) => {
+      clickCount++; // ✅ นับจำนวนคลิกทั้งหมด
+
+      const rect = imgEl.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width;
+      const y = (e.clientY - rect.top) / rect.height;
+      const imgName = trialOrder[current];
+      const area = buttonAreas[imgName];
+      let isCorrect = false;
+
+      if (area && x >= area.x && x <= area.x + area.w &&
+          y >= area.y && y <= area.y + area.h) {
+        correct++;
+        isCorrect = true;
+        if (reactionTime === null) {
+          reactionTime = performance.now() - startTime;
+        }
+      } else {
+        wrong++;
+      }
+
+      // ✅ เก็บ log การคลิกแต่ละครั้ง
+      clickLogs.push({
+        x: x.toFixed(3),
+        y: y.toFixed(3),
+        isCorrect
+      });
+
+      correctEl.textContent = correct;
+      wrongEl.textContent = wrong;
+    });
+
+    function askConfidence() {
+      clearInterval(timer);
+      const conf = prompt(
+        "⏰ หมดเวลาแล้ว!\nคุณมั่นใจแค่ไหนว่าระบุตำแหน่งถูกต้อง?\n( [1] ไม่มั่นใจเลย – [5] มั่นใจที่สุด )"
+      );
+
+      const solved = reactionTime !== null; // ✅ คลิกถูกสักครั้งไหม
+
+      resultsPerImage.push({
+        image: trialOrder[current],
+        correct,
+        wrong,
+        total_clicks: clickCount,
+        solved,
+        confidence: conf || "-",
+        clicks: clickLogs
+      });
+
+      nextImage();
+    }
+
+    function nextImage() {
+      current++;
+      if (current < trialOrder.length) {
+        alert("➡️ กำลังเปลี่ยนไปภาพถัดไป...");
+        loadImage();
+      } else {
+        const result = {
+          scenario: "Scenario 2",
+          pid,
+          group,
+          trials: resultsPerImage
+        };
+        localStorage.setItem("result_scenario2", JSON.stringify(result));
+        alert("✅ จบการทดสอบ Scenario 2 แล้ว!");
+        window.location.href = "../summary.html";
+      }
+    }
+
+    loadImage();
+  </script>
+</body>
+</html>
