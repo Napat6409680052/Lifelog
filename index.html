@@ -13,7 +13,7 @@
       margin-top: 6px;
     }
 
-    select {
+    select, input[type="text"] {
       padding: 10px;
       border-radius: 8px;
       border: 1px solid #ccc;
@@ -21,25 +21,17 @@
       flex: 1;
     }
 
-    /* ✅ label กับ dropdown อยู่บรรทัดเดียว */
-    .group-row {
+    /* ✅ ใช้ flex เพื่อจัด label กับ input อยู่บรรทัดเดียว */
+    .input-row, .group-row {
       display: flex;
       align-items: center;
       gap: 10px;
-      margin-top: 5px;
+      margin-top: 10px;
     }
 
     label {
       font-weight: 500;
-    }
-
-    input[type="text"] {
-      width: 100%;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 1em;
-      margin-bottom: 10px;
+      white-space: nowrap;
     }
   </style>
 </head>
@@ -49,11 +41,13 @@
     <h1>Lifelogging Usability Test</h1>
     <p><strong>การประเมินความสามารถในการรับรู้และควบคุมอุปกรณ์ Lifelogging</strong></p>
 
-    <!-- ✅ Participant ID แยกบรรทัด -->
-    <label for="pid">Participant ID :</label>
-    <input id="pid" type="text" placeholder="เช่น P01" />
+    <!-- ✅ Participant ID แสดงในบรรทัดเดียวกับช่องกรอก -->
+    <div class="input-row">
+      <label for="pid">Participant ID :</label>
+      <input id="pid" type="text" placeholder="เช่น P01" />
+    </div>
 
-    <!-- ✅ กลุ่มอยู่บรรทัดใหม่ แต่ label กับ dropdown อยู่บรรทัดเดียว -->
+    <!-- ✅ กลุ่มอยู่บรรทัดเดียวกับ dropdown -->
     <div class="group-row">
       <label for="group">กลุ่มผู้เข้าร่วมการทดลอง :</label>
       <select id="group">
