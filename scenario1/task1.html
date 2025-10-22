@@ -136,34 +136,6 @@
       }
     }
 
-    function saveAndNext() {
-      localStorage.setItem(`scenario1_data_${taskName}`, JSON.stringify(data));
-      const nextIndex = taskIndex;
-      const order = JSON.parse(localStorage.getItem("taskOrder"));
-      const nextTask = order[nextIndex];
-      const fileMap = {
-        "LED": "task1.html",
-        "Sound": "task2.html",
-        "Vibration": "task3.html",
-        "None": "task4.html"
-      };
-      if (nextTask) {
-      // 🔹 ไป task ถัดไปตามลำดับละติน
-      window.location.href = fileMap[nextTask];
-    } else {
-      // ✅ ถ้าครบ 4/4 แล้ว แสดงปุ่ม "ทำ Scenario 2"
-      const container = document.querySelector(".container");
-      container.innerHTML = `
-        <h2>🎉 จบ Scenario 1 เรียบร้อยแล้ว</h2>
-        <p>ขอบคุณที่เข้าร่วมการทดสอบ<br>
-        คุณสามารถกดปุ่มด้านล่างเพื่อไปยัง Scenario 2 ต่อได้เลย</p>
-        <button id="toSc2" class="primary">ไป Scenario 2</button>
-      `;
-      document.getElementById("toSc2").addEventListener("click", () => {
-        window.location.href = "../scenario2/instruction-sc2.html";
-      });
-    }
-    }
   </script>
 </body>
 </html>

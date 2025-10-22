@@ -3,52 +3,73 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Scenario 2 – Easy Interface</title>
+  <title>Scenario 2 – Easy Interface Test</title>
   <style>
     body {
       font-family: "Sarabun", sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
       background: #f7f7f7;
-      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
     }
+
+    .card {
+      background: white;
+      padding: 30px 40px;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      text-align: center;
+      width: 420px;
+    }
+
+    h2 {
+      margin-top: 0;
+      margin-bottom: 10px;
+    }
+
+    hr {
+      margin: 15px 0;
+      border: none;
+      border-top: 1px solid #ccc;
+    }
+
     img {
       width: 320px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      border-radius: 10px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+      margin: 15px 0;
       cursor: pointer;
     }
-    .info {
-      text-align: center;
-      margin-top: 10px;
-    }
-    #timer {
-      font-weight: bold;
+
+    .status {
+      font-size: 0.95em;
       color: #333;
+      margin-top: 8px;
     }
   </style>
 </head>
 
 <body>
-  <h2>Scenario 2: Easy Interface Test</h2>
-  <img id="testImage" src="" alt="interface" />
-  <div class="info">
-    <p>เวลาเหลือ: <span id="timer">30</span> วินาที</p>
-    <p>ถูก: <span id="correct">0</span> | ผิด: <span id="wrong">0</span></p>
-    <p id="progress"></p>
+  <div class="card">
+    <h2>Scenario 2 (Easy Interface Test)</h2>
+    <hr>
+    <p id="progress">ภาพ 1 / 4</p>
+
+    <img id="testImage" src="" alt="interface" />
+
+    <div class="status">
+      ⏱ เวลาเหลือ: <span id="timer">30</span> วินาที<br>
+      ✅ ถูก: <span id="correct">0</span> | ❌ ผิด: <span id="wrong">0</span>
+    </div>
   </div>
 
   <script>
-    const images = [
-      "bicon.png",
-      "bictext.png",
-      "onlybotton.png",
-      "original.png"
-    ];
+    // 📸 รายชื่อภาพ
+    const images = ["bicon.png", "bictext.png", "onlybotton.png", "original.png"];
 
-    // hit-box สำหรับแต่ละรูป (x, y, w, h)
+    // 🎯 พื้นที่ปุ่ม (x,y,w,h) สำหรับแต่ละภาพ
     const buttonAreas = {
       "bicon.png":      { x: 0.10, y: 0.08, w: 0.10, h: 0.10 },
       "bictext.png":    { x: 0.10, y: 0.08, w: 0.12, h: 0.12 },
@@ -56,24 +77,37 @@
       "original.png":   null
     };
 
-    let current = 0;
-    let correct = 0;
-    let wrong = 0;
-    let timeLeft = 30;
-    let timer;
+    // 🧩 Latin Square 4×4
+    const latinOrders = [
+      [0, 1, 2, 3],
+      [1, 2, 3, 0],
+      [2, 3, 0, 1],
+      [3, 0, 1, 2]
+    ];
 
+    // 🆔 ดึงรหัสผู้เข้าร่วม (PID) จาก localStorage
+    const pid = localStorage.getItem("pid") || 1;
+    const orderIndex = (parseInt(pid) - 1) % 4;
+    const trialOrder = latinOrders[orderIndex].map(i => images[i]);
+
+    // 🔢 ตัวแปรหลัก
+    let current = 0, correct = 0, wrong = 0, timeLeft = 30, timer;
+
+    // 🎛️ อ้างอิงองค์ประกอบในหน้า
     const imgEl = document.getElementById("testImage");
     const timerEl = document.getElementById("timer");
     const correctEl = document.getElementById("correct");
     const wrongEl = document.getElementById("wrong");
     const progressEl = document.getElementById("progress");
 
+    // 📥 โหลดภาพตามลำดับ
     function loadImage() {
-      imgEl.src = "picScenario2/" + images[current];
-      progressEl.textContent = `ภาพ ${current + 1} / ${images.length}`;
+      imgEl.src = "picScenario2/" + trialOrder[current];
+      progressEl.textContent = `ภาพ ${current + 1} / ${trialOrder.length}`;
       timeLeft = 30;
       timerEl.textContent = timeLeft;
       clearInterval(timer);
+
       timer = setInterval(() => {
         timeLeft--;
         timerEl.textContent = timeLeft;
@@ -81,60 +115,54 @@
       }, 1000);
     }
 
-    imgEl.addEventListener("click", (e) => {
+    // 👆 ตรวจคลิกบนภาพ
+    imgEl.addEventListener("click", e => {
       const rect = imgEl.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width;
       const y = (e.clientY - rect.top) / rect.height;
-      const imgName = images[current];
+      const imgName = trialOrder[current];
       const area = buttonAreas[imgName];
 
       if (area && x >= area.x && x <= area.x + area.w &&
           y >= area.y && y <= area.y + area.h) {
         correct++;
-        correctEl.textContent = correct;
       } else {
         wrong++;
-        wrongEl.textContent = wrong;
       }
+      correctEl.textContent = correct;
+      wrongEl.textContent = wrong;
     });
 
-    // ✅ ถามความมั่นใจหลังจบแต่ละภาพ
+    // 📊 ถามความมั่นใจหลังภาพจบ
     function askConfidence() {
       clearInterval(timer);
-      const conf = prompt("ให้คะแนนความมั่นใจ (1–5) ว่าคุณเข้าใจปุ่มนี้ดีแค่ไหน?");
-      if (conf) {
-        localStorage.setItem(`conf_${images[current]}`, conf);
-      }
+      const conf = prompt("คุณมั่นใจแค่ไหนว่าระบุตำแหน่งปุ่มถูกต้อง?\n( [1] ไม่มั่นใจเลย – [5] มั่นใจที่สุด )");
+      if (conf) localStorage.setItem(`conf_${trialOrder[current]}`, conf);
       nextImage();
     }
 
-function nextImage() {
-  current++;
-  if (current < images.length) {
-    loadImage();
-  } else {
-    clearInterval(timer);
+    // ⏭️ ไปภาพถัดไป / สรุปผล
+    function nextImage() {
+      current++;
+      if (current < trialOrder.length) {
+        loadImage();
+      } else {
+        clearInterval(timer);
+        const result = {
+          scenario: "Scenario 2",
+          correct,
+          wrong,
+          confidence: trialOrder.map(img => ({
+            image: img,
+            score: localStorage.getItem('conf_' + img) || '-'
+          }))
+        };
+        localStorage.setItem("result_scenario2", JSON.stringify(result));
+        window.location.href = "../summary.html";
+      }
+    }
 
-    // สร้าง object ผลลัพธ์ของ Scenario 2
-    const result = {
-      scenario: "Scenario 2",
-      correct,
-      wrong,
-      confidence: images.map(img => ({
-        image: img,
-        score: localStorage.getItem('conf_' + img) || '-'
-      }))
-    };
-
-    // เก็บไว้ใน localStorage
-    localStorage.setItem("result_scenario2", JSON.stringify(result));
-
-    // ไปหน้า summary.html
-    window.location.href = "../summary.html";
-  }
-}
-
-
+    // ▶️ เริ่มทำงาน
     loadImage();
   </script>
 </body>
