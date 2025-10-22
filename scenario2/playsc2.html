@@ -65,104 +65,111 @@
     </div>
   </div>
 
-  <script>
-    // 📸 รายชื่อภาพ
-    const images = ["bicon.png", "bictext.png", "onlybotton.png", "original.png"];
+<script>
+  const images = ["bicon.png", "bictext.png", "onlybotton.png", "original.png"];
+  const buttonAreas = {
+    "bicon.png":      { x: 0.250, y: 0.190, w: 0.080, h: 0.065 },
+    "bictext.png":    { x: 0.250, y: 0.190, w: 0.080, h: 0.065 },
+    "onlybotton.png": { x: 0.250, y: 0.190, w: 0.080, h: 0.065 },
+    "original.png":   null
+  };
 
-    // 🎯 พื้นที่ปุ่ม (x,y,w,h) — ปรับใหม่ให้พอดีกับปุ่มซ้ายบน
-    const buttonAreas = {
-      "bicon.png":      { x: 0.250, y: 0.190, w: 0.080, h: 0.065 },
-      "bictext.png":    { x: 0.250, y: 0.190, w: 0.080, h: 0.065 },
-      "onlybotton.png": { x: 0.250, y: 0.190, w: 0.080, h: 0.065 },
-      "original.png":   null
-    };
+  const latinOrders = [
+    [0, 1, 2, 3],
+    [1, 2, 3, 0],
+    [2, 3, 0, 1],
+    [3, 0, 1, 2]
+  ];
 
+  const pid = localStorage.getItem("pid") || "Unknown";
+  const group = localStorage.getItem("group") || "N/A";
+  const orderIndex = (parseInt(pid.replace(/\D/g, "")) - 1) % 4;
+  const trialOrder = latinOrders[orderIndex].map(i => images[i]);
 
-    // 🧩 Latin Square 4×4
-    const latinOrders = [
-      [0, 1, 2, 3],
-      [1, 2, 3, 0],
-      [2, 3, 0, 1],
-      [3, 0, 1, 2]
-    ];
+  let current = 0, correct = 0, wrong = 0, timeLeft = 30, timer;
+  const resultsPerImage = []; // 🧩 เก็บผลแต่ละภาพ
 
-    // 🆔 ดึงข้อมูลผู้เข้าร่วม
-    const pid = localStorage.getItem("pid") || "Unknown";
-    const group = localStorage.getItem("group") || "N/A";
-    const orderIndex = (parseInt(pid.replace(/\D/g, "")) - 1) % 4;
-    const trialOrder = latinOrders[orderIndex].map(i => images[i]);
+  const imgEl = document.getElementById("testImage");
+  const timerEl = document.getElementById("timer");
+  const correctEl = document.getElementById("correct");
+  const wrongEl = document.getElementById("wrong");
+  const progressEl = document.getElementById("progress");
 
-    let current = 0, correct = 0, wrong = 0, timeLeft = 30, timer;
-    const imgEl = document.getElementById("testImage");
-    const timerEl = document.getElementById("timer");
-    const correctEl = document.getElementById("correct");
-    const wrongEl = document.getElementById("wrong");
-    const progressEl = document.getElementById("progress");
+  function loadImage() {
+    // รีเซ็ตค่าถูก/ผิดทุกภาพใหม่
+    correct = 0;
+    wrong = 0;
+    correctEl.textContent = 0;
+    wrongEl.textContent = 0;
 
-    function loadImage() {
-      imgEl.src = "picscenario2/" + trialOrder[current];
-      progressEl.textContent = `ภาพ ${current + 1} / ${trialOrder.length}`;
-      timeLeft = 30;
+    imgEl.src = "picscenario2/" + trialOrder[current];
+    progressEl.textContent = `ภาพ ${current + 1} / ${trialOrder.length}`;
+    timeLeft = 30;
+    timerEl.textContent = timeLeft;
+    clearInterval(timer);
+
+    timer = setInterval(() => {
+      timeLeft--;
       timerEl.textContent = timeLeft;
-      clearInterval(timer);
+      if (timeLeft <= 0) askConfidence();
+    }, 1000);
+  }
 
-      timer = setInterval(() => {
-        timeLeft--;
-        timerEl.textContent = timeLeft;
-        if (timeLeft <= 0) askConfidence();
-      }, 1000);
+  imgEl.addEventListener("click", e => {
+    const rect = imgEl.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
+    const imgName = trialOrder[current];
+    const area = buttonAreas[imgName];
+
+    if (area && x >= area.x && x <= area.x + area.w &&
+        y >= area.y && y <= area.y + area.h) {
+      correct++;
+    } else {
+      wrong++;
     }
+    correctEl.textContent = correct;
+    wrongEl.textContent = wrong;
+  });
 
-    imgEl.addEventListener("click", e => {
-      const rect = imgEl.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width;
-      const y = (e.clientY - rect.top) / rect.height;
-      const imgName = trialOrder[current];
-      const area = buttonAreas[imgName];
+  function askConfidence() {
+    clearInterval(timer);
+    alert("⏰ หมดเวลาแล้ว! กรุณากรอกระดับความมั่นใจของคุณ");
+    const conf = prompt("คุณมั่นใจแค่ไหนว่าระบุตำแหน่งปุ่มถูกต้อง?\n( [1] ไม่มั่นใจเลย – [5] มั่นใจที่สุด )");
 
-      if (area && x >= area.x && x <= area.x + area.w &&
-          y >= area.y && y <= area.y + area.h) {
-        correct++;
-      } else {
-        wrong++;
-      }
-      correctEl.textContent = correct;
-      wrongEl.textContent = wrong;
+    // 🧾 เก็บผลของภาพนี้ก่อนเปลี่ยน
+    resultsPerImage.push({
+      image: trialOrder[current],
+      correct,
+      wrong,
+      confidence: conf || "-"
     });
 
-    function askConfidence() {
+    nextImage();
+  }
+
+  function nextImage() {
+    current++;
+    if (current < trialOrder.length) {
+      alert("➡️ กำลังเปลี่ยนไปภาพถัดไป...");
+      loadImage();
+    } else {
       clearInterval(timer);
-      alert("⏰ หมดเวลาแล้ว! กรุณากรอกระดับความมั่นใจของคุณ");
-      const conf = prompt("คุณมั่นใจแค่ไหนว่าระบุตำแหน่งปุ่มถูกต้อง?\n( [1] ไม่มั่นใจเลย – [5] มั่นใจที่สุด )");
-      if (conf) localStorage.setItem(`conf_${trialOrder[current]}`, conf);
-      nextImage();
-    }
+      const result = {
+        scenario: "Scenario 2",
+        pid,
+        group,
+        trials: resultsPerImage
+      };
+      localStorage.setItem("result_scenario2", JSON.stringify(result));
 
-    function nextImage() {
-      current++;
-      if (current < trialOrder.length) {
-        alert("➡️ กำลังเปลี่ยนไปภาพถัดไป...");
-        loadImage();
-      } else {
-        clearInterval(timer);
-        const result = {
-          scenario: "Scenario 2",
-          pid,
-          group,
-          correct,
-          wrong,
-          confidence: trialOrder.map(img => ({
-            image: img,
-            score: localStorage.getItem('conf_' + img) || '-'
-          }))
-        };
-        localStorage.setItem("result_scenario2", JSON.stringify(result));
-        trialOrder.forEach(img => localStorage.removeItem('conf_' + img)); // 🧹 ล้างค่า
-        window.location.href = "../summary.html";
-      }
+      window.location.href = "../summary.html";
     }
+  }
 
-    loadImage();
-  </script>
+  loadImage();
+</script>
+
+
 </body>
 </html>
