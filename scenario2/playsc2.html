@@ -1,70 +1,3 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Scenario 2 – Easy Interface Test</title>
-  <style>
-    body {
-      font-family: "Sarabun", sans-serif;
-      background: #f7f7f7;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-    }
-
-    .card {
-      background: white;
-      padding: 30px 40px;
-      border-radius: 16px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-      text-align: center;
-      width: 420px;
-    }
-
-    h2 {
-      margin-top: 0;
-      margin-bottom: 10px;
-    }
-
-    hr {
-      margin: 15px 0;
-      border: none;
-      border-top: 1px solid #ccc;
-    }
-
-    img {
-      width: 320px;
-      border-radius: 10px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.15);
-      margin: 15px 0;
-      cursor: pointer;
-    }
-
-    .status {
-      font-size: 0.95em;
-      color: #333;
-      margin-top: 8px;
-    }
-  </style>
-</head>
-
-<body>
-  <div class="card">
-    <h2>Scenario 2 (Easy Interface Test)</h2>
-    <hr>
-    <p id="progress">ภาพ 1 / 4</p>
-
-    <img id="testImage" src="" alt="interface" />
-
-    <div class="status">
-      ⏱ เวลาเหลือ: <span id="timer">30</span> วินาที<br>
-      ✅ ถูก: <span id="correct">0</span> | ❌ ผิด: <span id="wrong">0</span>
-    </div>
-  </div>
-
 <script>
 const images = ["bicon.png", "bictext.png", "onlybotton.png", "original.png"];
 const buttonAreas = {
@@ -89,8 +22,12 @@ const trialOrder = latinOrders[orderIndex].map(i => images[i]);
 let current = 0;
 let correct = 0;
 let wrong = 0;
+let clickCount = 0;      // ✅ จำนวนคลิกทั้งหมด
+let clickLogs = [];      // ✅ log การกดทั้งหมด
 let timeLeft = 30;
 let timer = null;
+let startTime = 0;
+let reactionTime = null;
 const resultsPerImage = [];
 
 const imgEl = document.getElementById("testImage");
@@ -100,44 +37,60 @@ const wrongEl = document.getElementById("wrong");
 const progressEl = document.getElementById("progress");
 
 function loadImage() {
-  // ✅ รีเซ็ตจำนวนถูก/ผิด
   correct = 0;
   wrong = 0;
-  correctEl.textContent = correct;
-  wrongEl.textContent = wrong;
+  clickCount = 0;
+  clickLogs = [];
+  reactionTime = null;
+  correctEl.textContent = 0;
+  wrongEl.textContent = 0;
 
-  // ✅ โหลดภาพใหม่
   imgEl.src = "picscenario2/" + trialOrder[current];
   progressEl.textContent = `ภาพ ${current + 1} / ${trialOrder.length}`;
 
-  // ✅ รีเซ็ตเวลา
+  startTime = performance.now();
   clearInterval(timer);
   timeLeft = 30;
   timerEl.textContent = timeLeft;
+
   timer = setInterval(() => {
     timeLeft--;
     timerEl.textContent = timeLeft;
     if (timeLeft <= 0) {
       clearInterval(timer);
-      askConfidence(); // 🕒 หมดเวลาแล้ว
+      askConfidence();
     }
   }, 1000);
 }
 
-// ✅ คลิกภาพ
 imgEl.addEventListener("click", (e) => {
+  clickCount++; // ✅ นับจำนวนคลิกทั้งหมด
+
   const rect = imgEl.getBoundingClientRect();
   const x = (e.clientX - rect.left) / rect.width;
   const y = (e.clientY - rect.top) / rect.height;
   const imgName = trialOrder[current];
   const area = buttonAreas[imgName];
+  let isCorrect = false;
 
   if (area && x >= area.x && x <= area.x + area.w &&
       y >= area.y && y <= area.y + area.h) {
     correct++;
+    isCorrect = true;
+    if (reactionTime === null) {
+      reactionTime = performance.now() - startTime;
+    }
   } else {
     wrong++;
   }
+
+  // ✅ เก็บ log การคลิกแต่ละครั้ง
+  clickLogs.push({
+    x: x.toFixed(3),
+    y: y.toFixed(3),
+    isCorrect
+  });
+
   correctEl.textContent = correct;
   wrongEl.textContent = wrong;
 });
@@ -148,12 +101,17 @@ function askConfidence() {
     "⏰ หมดเวลาแล้ว!\nคุณมั่นใจแค่ไหนว่าระบุตำแหน่งถูกต้อง?\n( [1] ไม่มั่นใจเลย – [5] มั่นใจที่สุด )"
   );
 
-  // ✅ บันทึกผลของภาพนี้
+  const solved = reactionTime !== null; // ✅ คลิกถูกสักครั้งไหม
+
+  // ✅ เก็บผลทั้งหมด
   resultsPerImage.push({
     image: trialOrder[current],
     correct,
     wrong,
-    confidence: conf || "-"
+    total_clicks: clickCount,
+    solved,
+    confidence: conf || "-",
+    clicks: clickLogs
   });
 
   nextImage();
@@ -162,12 +120,10 @@ function askConfidence() {
 function nextImage() {
   current++;
   if (current < trialOrder.length) {
-    // ✅ โหลดภาพถัดไป
     alert("➡️ กำลังเปลี่ยนไปภาพถัดไป...");
     loadImage();
   } else {
-    // ✅ จบทั้งหมด
-    clearInterval(timer);
+    // ✅ จบแล้ว
     const result = {
       scenario: "Scenario 2",
       pid,
@@ -182,7 +138,3 @@ function nextImage() {
 
 loadImage();
 </script>
-
-
-</body>
-</html>
