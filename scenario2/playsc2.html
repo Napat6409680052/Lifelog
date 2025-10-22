@@ -69,7 +69,7 @@
     // 📸 รายชื่อภาพ
     const images = ["bicon.png", "bictext.png", "onlybotton.png", "original.png"];
 
-    // 🎯 พื้นที่ปุ่ม (x,y,w,h) สำหรับแต่ละภาพ
+    // 🎯 พื้นที่ปุ่ม (x,y,w,h)
     const buttonAreas = {
       "bicon.png":      { x: 0.10, y: 0.08, w: 0.10, h: 0.10 },
       "bictext.png":    { x: 0.10, y: 0.08, w: 0.12, h: 0.12 },
@@ -85,15 +85,15 @@
       [3, 0, 1, 2]
     ];
 
-    // 🆔 ดึงรหัสผู้เข้าร่วม (PID) จาก localStorage
-    const pid = localStorage.getItem("pid") || 1;
-    const orderIndex = (parseInt(pid) - 1) % 4;
+    // 🆔 ดึงข้อมูลจาก localStorage
+    const pid = localStorage.getItem("pid") || "Unknown";
+    const group = localStorage.getItem("group") || "N/A";
+    const orderIndex = (parseInt(pid.replace(/\D/g, "")) - 1) % 4;
     const trialOrder = latinOrders[orderIndex].map(i => images[i]);
 
     // 🔢 ตัวแปรหลัก
     let current = 0, correct = 0, wrong = 0, timeLeft = 30, timer;
 
-    // 🎛️ อ้างอิงองค์ประกอบในหน้า
     const imgEl = document.getElementById("testImage");
     const timerEl = document.getElementById("timer");
     const correctEl = document.getElementById("correct");
@@ -102,7 +102,7 @@
 
     // 📥 โหลดภาพตามลำดับ
     function loadImage() {
-      imgEl.src = "picScenario2/" + trialOrder[current];
+      imgEl.src = "picscenario2/" + trialOrder[current]; // ✅ แก้ path ให้ถูก
       progressEl.textContent = `ภาพ ${current + 1} / ${trialOrder.length}`;
       timeLeft = 30;
       timerEl.textContent = timeLeft;
@@ -136,6 +136,7 @@
     // 📊 ถามความมั่นใจหลังภาพจบ
     function askConfidence() {
       clearInterval(timer);
+      alert("⏰ หมดเวลาแล้ว! กรุณากรอกระดับความมั่นใจของคุณ");
       const conf = prompt("คุณมั่นใจแค่ไหนว่าระบุตำแหน่งปุ่มถูกต้อง?\n( [1] ไม่มั่นใจเลย – [5] มั่นใจที่สุด )");
       if (conf) localStorage.setItem(`conf_${trialOrder[current]}`, conf);
       nextImage();
@@ -145,11 +146,14 @@
     function nextImage() {
       current++;
       if (current < trialOrder.length) {
+        alert("➡️ กำลังเปลี่ยนไปภาพถัดไป...");
         loadImage();
       } else {
         clearInterval(timer);
         const result = {
           scenario: "Scenario 2",
+          pid,
+          group,
           correct,
           wrong,
           confidence: trialOrder.map(img => ({
@@ -158,6 +162,8 @@
           }))
         };
         localStorage.setItem("result_scenario2", JSON.stringify(result));
+        // 🧹 ล้างค่า confidence ที่เก็บไว้รายภาพ
+        trialOrder.forEach(img => localStorage.removeItem('conf_' + img));
         window.location.href = "../summary.html";
       }
     }
