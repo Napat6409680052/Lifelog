@@ -12,13 +12,34 @@
       color: #555;
       margin-top: 6px;
     }
+
     select {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+      flex: 1;
+    }
+
+    /* ✅ label กับ dropdown อยู่บรรทัดเดียว */
+    .group-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 5px;
+    }
+
+    label {
+      font-weight: 500;
+    }
+
+    input[type="text"] {
       width: 100%;
       padding: 10px;
       border-radius: 8px;
       border: 1px solid #ccc;
-      margin-top: 5px;
       font-size: 1em;
+      margin-bottom: 10px;
     }
   </style>
 </head>
@@ -28,15 +49,19 @@
     <h1>Lifelogging Usability Test</h1>
     <p><strong>การประเมินความสามารถในการรับรู้และควบคุมอุปกรณ์ Lifelogging</strong></p>
 
+    <!-- ✅ Participant ID แยกบรรทัด -->
     <label for="pid">Participant ID :</label>
-    <input id="pid" type="text" placeholder="เช่น P01" \n /> 
+    <input id="pid" type="text" placeholder="เช่น P01" />
 
-    <label for="group" style="margin-top:10px;">กลุ่มผู้เข้าร่วมการทดลอง :</label>
-    <select id="group">
-      <option value="">— เลือกกลุ่ม —</option>
-      <option value="Well-being">กลุ่มที่ 1 </option>
-      <option value="Non-user">ดลุ่มที่ 2</option>
-    </select>
+    <!-- ✅ กลุ่มอยู่บรรทัดใหม่ แต่ label กับ dropdown อยู่บรรทัดเดียว -->
+    <div class="group-row">
+      <label for="group">กลุ่มผู้เข้าร่วมการทดลอง :</label>
+      <select id="group">
+        <option value="">— เลือกกลุ่ม —</option>
+        <option value="Well-being">กลุ่มที่ 1</option>
+        <option value="Non-user">กลุ่มที่ 2</option>
+      </select>
+    </div>
 
     <h2>คำแนะนำก่อนเริ่มการทดสอบ</h2>
     <p>
