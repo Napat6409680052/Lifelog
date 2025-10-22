@@ -130,34 +130,36 @@
       }
     }
 
+  // ✅ เวอร์ชันใหม่ของ saveAndNext (รองรับละติน)
     function saveAndNext() {
+      // 🧾 1) บันทึกข้อมูลของ task ปัจจุบัน
       localStorage.setItem(`scenario1_data_${taskName}`, JSON.stringify(data));
-      const nextIndex = taskIndex;
-      const order = JSON.parse(localStorage.getItem("taskOrder"));
-      const nextTask = order[nextIndex];
+
+      // 🧠 2) อ่านลำดับละตินที่ถูกตั้งจากหน้าแรก
+      const order = JSON.parse(localStorage.getItem("taskOrder")) || ["LED", "Sound", "Vibration", "None"];
+      const currentIndex = order.indexOf(taskName);
+      const nextTask = order[currentIndex + 1]; // หา task ถัดไปในชุดละติน
+
+      // 🗺️ 3) mapping ชื่อ task → ไฟล์
       const fileMap = {
         "LED": "task1.html",
         "Sound": "task2.html",
         "Vibration": "task3.html",
         "None": "task4.html"
       };
+
+      // 🧩 4) ตรวจว่ามี task ถัดไปไหม
       if (nextTask) {
-      // 🔹 ไป task ถัดไปตามลำดับละติน
-      window.location.href = fileMap[nextTask];
-    } else {
-      // ✅ ถ้าครบ 4/4 แล้ว แสดงปุ่ม "ทำ Scenario 2"
-      const container = document.querySelector(".container");
-      container.innerHTML = `
-        <h2>🎉 จบ Scenario 1 เรียบร้อยแล้ว</h2>
-        <p>ขอบคุณที่เข้าร่วมการทดสอบ<br>
-        คุณสามารถกดปุ่มด้านล่างเพื่อไปยัง Scenario 2 ต่อได้เลย</p>
-        <button id="toSc2" class="primary">ไป Scenario 2</button>
-      `;
-      document.getElementById("toSc2").addEventListener("click", () => {
-      window.location.href = "../scenario2/instruction-sc2.html";
-      });
+        // 🔹 ยังมี task ถัดไป
+        alert(`✅ จบ Task ${currentIndex + 1}/4 แล้ว → ไป Task ถัดไป (${nextTask})`);
+        window.location.href = fileMap[nextTask];
+      } else {
+        // ✅ ครบ 4/4 แล้ว
+        alert("🎉 จบครบ 4/4 แล้ว ขอบคุณค่ะ กำลังไปยัง Scenario 2...");
+        window.location.href = "../scenario2/instruction-sc2.html";
+      }
     }
-    }
+    
   </script>
 </body>
 </html>

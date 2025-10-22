@@ -12,6 +12,14 @@
       color: #555;
       margin-top: 6px;
     }
+    select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-top: 5px;
+      font-size: 1em;
+    }
   </style>
 </head>
 
@@ -21,7 +29,14 @@
     <p><strong>การประเมินความสามารถในการรับรู้และควบคุมอุปกรณ์ Lifelogging</strong></p>
 
     <label for="pid">Participant ID :</label>
-    <input id="pid" type="text" placeholder="เช่น 01">
+    <input id="pid" type="text" placeholder="เช่น P01" />
+
+    <label for="group" style="margin-top:10px;">กลุ่มผู้เข้าร่วมการทดลอง :</label>
+    <select id="group">
+      <option value="">— เลือกกลุ่ม —</option>
+      <option value="Well-being">🟢 คุ้นเคยกับอุปกรณ์ (Well-being)</option>
+      <option value="Non-user">🔵 ไม่คุ้นเคยกับอุปกรณ์ (Non-user)</option>
+    </select>
 
     <h2>คำแนะนำก่อนเริ่มการทดสอบ</h2>
     <p>
@@ -34,8 +49,8 @@
     </ul>
 
     <p class="note">
-      คำตอบของคุณจะถูกนำไปใช้ในการศึกษาและวิเคราะห์การทดลองเท่านั้น  
-      และจะไม่นำข้อมูลไปเปิดเผยหรือระบุตัวตนของคุณ
+      คำตอบของคุณจะถูกนำไปใช้เพื่อการศึกษาเท่านั้น  
+      และจะไม่ระบุตัวตนของคุณ
     </p>
 
     <img src="device.jpg" width="400" alt="Device Example" style="display:block;margin:20px auto;">
@@ -47,14 +62,22 @@
   <script>
     document.getElementById("toInstruction").addEventListener("click", () => {
       const pid = document.getElementById("pid").value.trim();
+      const group = document.getElementById("group").value;
 
       if (!pid) {
-        alert("กรุณากรอก Participant ID ก่อนเริ่มทำแบบสอบถาม");
+        alert("กรุณากรอก Participant ID ก่อนเริ่มการทดลอง");
+        return;
+      }
+      if (!group) {
+        alert("กรุณาเลือกกลุ่มผู้เข้าร่วมการทดลอง");
         return;
       }
 
-      // บันทึก PID และไปหน้า instruction_scenario1.html
+      // ✅ บันทึก PID และ GROUP ลง localStorage
       localStorage.setItem("pid", pid);
+      localStorage.setItem("group", group);
+
+      // ไปหน้า instruction
       window.location.href = "scenario1/instruction-sc1.html";
     });
   </script>

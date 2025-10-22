@@ -136,6 +136,37 @@
       }
     }
 
+  // ✅ เวอร์ชันใหม่ของ saveAndNext (รองรับละติน)
+    function saveAndNext() {
+      // 🧾 1) บันทึกข้อมูลของ task ปัจจุบัน
+      localStorage.setItem(`scenario1_data_${taskName}`, JSON.stringify(data));
+
+      // 🧠 2) อ่านลำดับละตินที่ถูกตั้งจากหน้าแรก
+      const order = JSON.parse(localStorage.getItem("taskOrder")) || ["LED", "Sound", "Vibration", "None"];
+      const currentIndex = order.indexOf(taskName);
+      const nextTask = order[currentIndex + 1]; // หา task ถัดไปในชุดละติน
+
+      // 🗺️ 3) mapping ชื่อ task → ไฟล์
+      const fileMap = {
+        "LED": "task1.html",
+        "Sound": "task2.html",
+        "Vibration": "task3.html",
+        "None": "task4.html"
+      };
+
+      // 🧩 4) ตรวจว่ามี task ถัดไปไหม
+      if (nextTask) {
+        // 🔹 ยังมี task ถัดไป
+        alert(`✅ จบ Task ${currentIndex + 1}/4 แล้ว → ไป Task ถัดไป (${nextTask})`);
+        window.location.href = fileMap[nextTask];
+      } else {
+        // ✅ ครบ 4/4 แล้ว
+        alert("🎉 จบครบ 4/4 แล้ว ขอบคุณค่ะ กำลังไปยัง Scenario 2...");
+        window.location.href = "../scenario2/instruction-sc2.html";
+      }
+    }
+
+
   </script>
 </body>
 </html>
