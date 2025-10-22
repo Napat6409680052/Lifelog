@@ -66,122 +66,121 @@
   </div>
 
 <script>
-  const images = ["bicon.png", "bictext.png", "onlybotton.png", "original.png"];
-  const buttonAreas = {
-    "bicon.png":      { x: 0.250, y: 0.190, w: 0.080, h: 0.065 },
-    "bictext.png":    { x: 0.250, y: 0.190, w: 0.080, h: 0.065 },
-    "onlybotton.png": { x: 0.250, y: 0.190, w: 0.080, h: 0.065 },
-    "original.png":   null
-  };
+const images = ["bicon.png", "bictext.png", "onlybotton.png", "original.png"];
+const buttonAreas = {
+  "bicon.png":      { x: 0.250, y: 0.190, w: 0.080, h: 0.065 },
+  "bictext.png":    { x: 0.250, y: 0.190, w: 0.080, h: 0.065 },
+  "onlybotton.png": { x: 0.250, y: 0.190, w: 0.080, h: 0.065 },
+  "original.png":   null
+};
 
-  const latinOrders = [
-    [0, 1, 2, 3],
-    [1, 2, 3, 0],
-    [2, 3, 0, 1],
-    [3, 0, 1, 2]
-  ];
+const latinOrders = [
+  [0, 1, 2, 3],
+  [1, 2, 3, 0],
+  [2, 3, 0, 1],
+  [3, 0, 1, 2]
+];
 
-  const pid = localStorage.getItem("pid") || "Unknown";
-  const group = localStorage.getItem("group") || "N/A";
-  const orderIndex = (parseInt(pid.replace(/\D/g, "")) - 1) % 4;
-  const trialOrder = latinOrders[orderIndex].map(i => images[i]);
+const pid = localStorage.getItem("pid") || "Unknown";
+const group = localStorage.getItem("group") || "N/A";
+const orderIndex = (parseInt(pid.replace(/\D/g, "")) - 1) % 4;
+const trialOrder = latinOrders[orderIndex].map(i => images[i]);
 
-  let current = 0;
-  let correct = 0;
-  let wrong = 0;
-  let timeLeft = 30;
-  let timer;
-  const resultsPerImage = [];
+let current = 0;
+let correct = 0;
+let wrong = 0;
+let timeLeft = 30;
+let timer = null;
+const resultsPerImage = [];
 
-  const imgEl = document.getElementById("testImage");
-  const timerEl = document.getElementById("timer");
-  const correctEl = document.getElementById("correct");
-  const wrongEl = document.getElementById("wrong");
-  const progressEl = document.getElementById("progress");
+const imgEl = document.getElementById("testImage");
+const timerEl = document.getElementById("timer");
+const correctEl = document.getElementById("correct");
+const wrongEl = document.getElementById("wrong");
+const progressEl = document.getElementById("progress");
 
-  function loadImage() {
-    // เคลียร์ event เดิมทั้งหมดก่อน
-    const newImgEl = imgEl.cloneNode(true);
-    imgEl.parentNode.replaceChild(newImgEl, imgEl);
+function loadImage() {
+  // ✅ รีเซ็ตจำนวนถูก/ผิด
+  correct = 0;
+  wrong = 0;
+  correctEl.textContent = correct;
+  wrongEl.textContent = wrong;
 
-    // อัปเดตตัวแปร DOM ใหม่หลัง clone
-    const img = document.getElementById("testImage");
+  // ✅ โหลดภาพใหม่
+  imgEl.src = "picscenario2/" + trialOrder[current];
+  progressEl.textContent = `ภาพ ${current + 1} / ${trialOrder.length}`;
 
-    // รีเซ็ตค่าถูก/ผิด
-    correct = 0;
-    wrong = 0;
-    correctEl.textContent = 0;
-    wrongEl.textContent = 0;
-
-    // โหลดภาพใหม่
-    img.src = "picscenario2/" + trialOrder[current];
-    progressEl.textContent = `ภาพ ${current + 1} / ${trialOrder.length}`;
-
-    // ตั้งเวลาใหม่
-    timeLeft = 30;
+  // ✅ รีเซ็ตเวลา
+  clearInterval(timer);
+  timeLeft = 30;
+  timerEl.textContent = timeLeft;
+  timer = setInterval(() => {
+    timeLeft--;
     timerEl.textContent = timeLeft;
-    clearInterval(timer);
-    timer = setInterval(() => {
-      timeLeft--;
-      timerEl.textContent = timeLeft;
-      if (timeLeft <= 0) askConfidence();
-    }, 1000);
-
-    // เพิ่ม event listener ใหม่สำหรับภาพนี้
-    img.addEventListener("click", (e) => {
-      const rect = img.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width;
-      const y = (e.clientY - rect.top) / rect.height;
-      const imgName = trialOrder[current];
-      const area = buttonAreas[imgName];
-
-      if (area && x >= area.x && x <= area.x + area.w &&
-          y >= area.y && y <= area.y + area.h) {
-        correct++;
-      } else {
-        wrong++;
-      }
-      correctEl.textContent = correct;
-      wrongEl.textContent = wrong;
-    });
-  }
-
-  function askConfidence() {
-    clearInterval(timer);
-    const conf = prompt("⏰ หมดเวลาแล้ว! คุณมั่นใจแค่ไหนว่าระบุตำแหน่งถูกต้อง?\n( [1] ไม่มั่นใจเลย – [5] มั่นใจที่สุด )");
-
-    // เก็บผลภาพนี้ก่อนเปลี่ยน
-    resultsPerImage.push({
-      image: trialOrder[current],
-      correct,
-      wrong,
-      confidence: conf || "-"
-    });
-
-    nextImage();
-  }
-
-  function nextImage() {
-    clearInterval(timer);
-    current++;
-    if (current < trialOrder.length) {
-      alert("➡️ กำลังเปลี่ยนไปภาพถัดไป...");
-      loadImage();
-    } else {
-      // จบทั้งหมด
-      const result = {
-        scenario: "Scenario 2",
-        pid,
-        group,
-        trials: resultsPerImage
-      };
-      localStorage.setItem("result_scenario2", JSON.stringify(result));
-      alert("✅ จบการทดสอบ Scenario 2 แล้ว!");
-      window.location.href = "../summary.html";
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      askConfidence(); // 🕒 หมดเวลาแล้ว
     }
-  }
+  }, 1000);
+}
 
-  loadImage();
+// ✅ คลิกภาพ
+imgEl.addEventListener("click", (e) => {
+  const rect = imgEl.getBoundingClientRect();
+  const x = (e.clientX - rect.left) / rect.width;
+  const y = (e.clientY - rect.top) / rect.height;
+  const imgName = trialOrder[current];
+  const area = buttonAreas[imgName];
+
+  if (area && x >= area.x && x <= area.x + area.w &&
+      y >= area.y && y <= area.y + area.h) {
+    correct++;
+  } else {
+    wrong++;
+  }
+  correctEl.textContent = correct;
+  wrongEl.textContent = wrong;
+});
+
+function askConfidence() {
+  clearInterval(timer);
+  const conf = prompt(
+    "⏰ หมดเวลาแล้ว!\nคุณมั่นใจแค่ไหนว่าระบุตำแหน่งถูกต้อง?\n( [1] ไม่มั่นใจเลย – [5] มั่นใจที่สุด )"
+  );
+
+  // ✅ บันทึกผลของภาพนี้
+  resultsPerImage.push({
+    image: trialOrder[current],
+    correct,
+    wrong,
+    confidence: conf || "-"
+  });
+
+  nextImage();
+}
+
+function nextImage() {
+  current++;
+  if (current < trialOrder.length) {
+    // ✅ โหลดภาพถัดไป
+    alert("➡️ กำลังเปลี่ยนไปภาพถัดไป...");
+    loadImage();
+  } else {
+    // ✅ จบทั้งหมด
+    clearInterval(timer);
+    const result = {
+      scenario: "Scenario 2",
+      pid,
+      group,
+      trials: resultsPerImage
+    };
+    localStorage.setItem("result_scenario2", JSON.stringify(result));
+    alert("✅ จบการทดสอบ Scenario 2 แล้ว!");
+    window.location.href = "../summary.html";
+  }
+}
+
+loadImage();
 </script>
 
 
