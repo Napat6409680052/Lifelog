@@ -69,11 +69,11 @@
     // 📸 รายชื่อภาพ
     const images = ["bicon.png", "bictext.png", "onlybotton.png", "original.png"];
 
-    // 🎯 พื้นที่ปุ่ม (x,y,w,h)
+    // 🎯 พื้นที่ปุ่ม (x,y,w,h) — ปรับใหม่ให้พอดีกับปุ่มซ้ายบน
     const buttonAreas = {
-      "bicon.png":      { x: 0.10, y: 0.08, w: 0.10, h: 0.10 },
-      "bictext.png":    { x: 0.10, y: 0.08, w: 0.12, h: 0.12 },
-      "onlybotton.png": { x: 0.10, y: 0.09, w: 0.09, h: 0.09 },
+      "bicon.png":      { x: 0.075, y: 0.055, w: 0.13, h: 0.13 },
+      "bictext.png":    { x: 0.075, y: 0.055, w: 0.13, h: 0.13 },
+      "onlybotton.png": { x: 0.075, y: 0.055, w: 0.13, h: 0.13 },
       "original.png":   null
     };
 
@@ -85,24 +85,21 @@
       [3, 0, 1, 2]
     ];
 
-    // 🆔 ดึงข้อมูลจาก localStorage
+    // 🆔 ดึงข้อมูลผู้เข้าร่วม
     const pid = localStorage.getItem("pid") || "Unknown";
     const group = localStorage.getItem("group") || "N/A";
     const orderIndex = (parseInt(pid.replace(/\D/g, "")) - 1) % 4;
     const trialOrder = latinOrders[orderIndex].map(i => images[i]);
 
-    // 🔢 ตัวแปรหลัก
     let current = 0, correct = 0, wrong = 0, timeLeft = 30, timer;
-
     const imgEl = document.getElementById("testImage");
     const timerEl = document.getElementById("timer");
     const correctEl = document.getElementById("correct");
     const wrongEl = document.getElementById("wrong");
     const progressEl = document.getElementById("progress");
 
-    // 📥 โหลดภาพตามลำดับ
     function loadImage() {
-      imgEl.src = "picscenario2/" + trialOrder[current]; // ✅ แก้ path ให้ถูก
+      imgEl.src = "picscenario2/" + trialOrder[current];
       progressEl.textContent = `ภาพ ${current + 1} / ${trialOrder.length}`;
       timeLeft = 30;
       timerEl.textContent = timeLeft;
@@ -115,7 +112,6 @@
       }, 1000);
     }
 
-    // 👆 ตรวจคลิกบนภาพ
     imgEl.addEventListener("click", e => {
       const rect = imgEl.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width;
@@ -133,7 +129,6 @@
       wrongEl.textContent = wrong;
     });
 
-    // 📊 ถามความมั่นใจหลังภาพจบ
     function askConfidence() {
       clearInterval(timer);
       alert("⏰ หมดเวลาแล้ว! กรุณากรอกระดับความมั่นใจของคุณ");
@@ -142,7 +137,6 @@
       nextImage();
     }
 
-    // ⏭️ ไปภาพถัดไป / สรุปผล
     function nextImage() {
       current++;
       if (current < trialOrder.length) {
@@ -162,13 +156,11 @@
           }))
         };
         localStorage.setItem("result_scenario2", JSON.stringify(result));
-        // 🧹 ล้างค่า confidence ที่เก็บไว้รายภาพ
-        trialOrder.forEach(img => localStorage.removeItem('conf_' + img));
+        trialOrder.forEach(img => localStorage.removeItem('conf_' + img)); // 🧹 ล้างค่า
         window.location.href = "../summary.html";
       }
     }
 
-    // ▶️ เริ่มทำงาน
     loadImage();
   </script>
 </body>
