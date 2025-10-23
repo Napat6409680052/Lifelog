@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Summary – Lifelogging Usability Test</title>
-  <link rel="stylesheet" href="style.css">
+  <title>สรุปผลการทดสอบ – Lifelogging Usability Test</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     body {
       font-family: "Sarabun", sans-serif;
@@ -19,135 +19,98 @@
       border-radius: 16px;
       box-shadow: 0 4px 16px rgba(0,0,0,0.1);
       padding: 30px;
-      max-width: 600px;
+      max-width: 640px;
       width: 100%;
       text-align: center;
     }
-    h2 {
-      margin-bottom: 20px;
-    }
-    h3 {
-      margin-top: 25px;
-      color: #333;
-    }
-    ul {
-      text-align: left;
-      margin-left: 20%;
-    }
+    h2 { margin-bottom: 10px; color:#333; }
+    p.desc { color:#555; line-height:1.6; margin-bottom:25px; }
     button {
-      margin: 8px;
-      padding: 10px 18px;
+      margin-top: 10px;
+      padding: 10px 20px;
       border: none;
       border-radius: 8px;
+      background: #007bff;
+      color: #fff;
       cursor: pointer;
       font-size: 1em;
     }
-    .primary {
-      background: #007bff;
-      color: white;
-    }
-    .secondary {
-      background: #6c757d;
-      color: white;
-    }
-    .primary:hover { background: #0056b3; }
-    .secondary:hover { background: #545b62; }
+    button:hover { background:#0056b3; }
   </style>
 </head>
-
 <body>
   <div class="container">
-    <h2>📊 Summary of All Scenarios</h2>
-    <div id="summaryContent">
-      <p>กำลังโหลดผลการทดสอบ...</p>
-    </div>
-    <button id="downloadBtn" class="primary">📥 Export CSV</button>
-    <button onclick="restart()" class="secondary">🔁 เริ่มใหม่</button>
+    <h2>ขอบคุณสำหรับการเข้าร่วมการทดลอง 🎉</h2>
+    <p class="desc">
+      คุณได้ทำครบทั้ง 2 ซีนาเรียโอ้แล้ว<br>
+      ข้อมูลทั้งหมดนี้จะถูกนำไปใช้เพื่อการวิจัยทางวิชาการเท่านั้น
+      <br>จะไม่มีการเปิดเผยข้อมูลส่วนบุคคลของคุณในทุกกรณี
+    </p>
+
+    <button id="downloadBtn">📥 ดาวน์โหลดข้อมูลเป็น Excel</button>
   </div>
 
   <script>
-    // แสดงผลรวมจาก Scenario 1 และ 2
-    function renderSummary() {
+    document.getElementById("downloadBtn").addEventListener("click", exportExcel);
+
+    function exportExcel() {
       const s1 = JSON.parse(localStorage.getItem("result_scenario1") || "null");
       const s2 = JSON.parse(localStorage.getItem("result_scenario2") || "null");
-      let html = "";
-
-      if (s1) {
-        html += `
-          <h3>${s1.scenario}</h3>
-          <p>ถูก: ${s1.correct} | ผิด: ${s1.wrong}</p>
-        `;
-        if (s1.confidence) {
-          html += `<ul>${s1.confidence.map(c =>
-            `<li>${c.image}: ${c.score}/5</li>`
-          ).join('')}</ul>`;
-        }
+      if (!s1 || !s2) {
+        alert("⚠️ ยังไม่พบข้อมูลจากการทดลองทั้งสองซีนาเรียโอ้");
+        return;
       }
 
-      if (s2) {
-        html += `
-          <h3>${s2.scenario}</h3>
-          <p>ถูก: ${s2.correct} | ผิด: ${s2.wrong}</p>
-        `;
-        if (s2.confidence) {
-          html += `<ul>${s2.confidence.map(c =>
-            `<li>${c.image}: ${c.score}/5</li>`
-          ).join('')}</ul>`;
-        }
-      }
+      // รวมข้อมูลจาก Scenario 1
+      const s1Rows = (s1.tasks || []).map(t => ({
+        PID: s1.pid,
+        Group: s1.group,
+        Scenario: "Scenario 1 (การรับรู้สัญญาณ)",
+        TaskOrImage: t.task,
+        Correct: t.correct,
+        Wrong: t.wrong,
+        ReactionTime: t.rt_avg || "-",
+        Confidence: t.avg_confidence || "-"
+      }));
 
-      if (!html) {
-        html = "<p>ยังไม่มีข้อมูลจากการทดสอบ</p>";
-      }
+      // รวมข้อมูลจาก Scenario 2
+      const s2Rows = (s2.trials || []).map(t => ({
+        PID: s2.pid,
+        Group: s2.group,
+        Scenario: "Scenario 2 (ความเข้าใจต่ออินเทอร์เฟซ)",
+        TaskOrImage: t.image,
+        Correct: t.correct,
+        Wrong: t.wrong,
+        TotalClicks: t.total_clicks,
+        Solved: t.solved ? "TRUE" : "FALSE",
+        Confidence: t.confidence
+      }));
 
-      document.getElementById("summaryContent").innerHTML = html;
+      const allRows = [...s1Rows, ...s2Rows];
+
+      // โหลดข้อมูลเดิมในเครื่อง (ถ้ามี)
+      let g1 = JSON.parse(localStorage.getItem("excel_group1") || "[]");
+      let g2 = JSON.parse(localStorage.getItem("excel_group2") || "[]");
+
+      // แยกตาม group
+      if (s1.group === "1" || s2.group === "1") g1.push(...allRows);
+      else if (s1.group === "2" || s2.group === "2") g2.push(...allRows);
+      else alert("⚠️ ไม่พบหมายเลขกลุ่ม (ควรเป็น 1 หรือ 2)");
+
+      // บันทึกข้อมูลสะสมไว้ใน localStorage
+      localStorage.setItem("excel_group1", JSON.stringify(g1));
+      localStorage.setItem("excel_group2", JSON.stringify(g2));
+
+      // สร้าง workbook
+      const wb = XLSX.utils.book_new();
+      const ws1 = XLSX.utils.json_to_sheet(g1);
+      const ws2 = XLSX.utils.json_to_sheet(g2);
+
+      XLSX.utils.book_append_sheet(wb, ws1, "Group 1 (กลุ่มคุ้นเคย)");
+      XLSX.utils.book_append_sheet(wb, ws2, "Group 2 (กลุ่มไม่คุ้นเคย)");
+
+      XLSX.writeFile(wb, "Lifelogging_Results.xlsx");
     }
-
-    // ปุ่มเริ่มใหม่ – ล้างข้อมูลทั้งหมด
-    function restart() {
-      if (confirm("ต้องการเริ่มใหม่และล้างผลการทดสอบทั้งหมดหรือไม่?")) {
-        localStorage.clear();
-        window.location.href = "index.html"; // หรือหน้าแรกของหนุน
-      }
-    }
-
-    // ปุ่ม Export CSV
-    function exportCSV() {
-      const s1 = JSON.parse(localStorage.getItem("result_scenario1") || "null");
-      const s2 = JSON.parse(localStorage.getItem("result_scenario2") || "null");
-
-      let csv = "Scenario,Correct,Wrong,Image,Confidence\n";
-
-      if (s1) {
-        if (s1.confidence) {
-          s1.confidence.forEach(c => {
-            csv += `${s1.scenario},${s1.correct},${s1.wrong},${c.image},${c.score}\n`;
-          });
-        } else {
-          csv += `${s1.scenario},${s1.correct},${s1.wrong},,\n`;
-        }
-      }
-
-      if (s2) {
-        if (s2.confidence) {
-          s2.confidence.forEach(c => {
-            csv += `${s2.scenario},${s2.correct},${s2.wrong},${c.image},${c.score}\n`;
-          });
-        } else {
-          csv += `${s2.scenario},${s2.correct},${s2.wrong},,\n`;
-        }
-      }
-
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "AllScenarioResults.csv";
-      link.click();
-    }
-
-    document.getElementById("downloadBtn").addEventListener("click", exportCSV);
-    renderSummary();
   </script>
 </body>
 </html>
