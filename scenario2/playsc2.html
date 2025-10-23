@@ -54,18 +54,10 @@
       "original.png":   null
     };
 
-    const latinOrders = [
-      [0, 1, 2, 3],
-      [1, 2, 3, 0],
-      [2, 3, 0, 1],
-      [3, 0, 1, 2]
-    ];
+    // ✅ ลำดับภาพจะถูกสุ่มใหม่ทุกครั้งที่เริ่ม Scenario 2
+    const trialOrder = images.sort(() => Math.random() - 0.5);
 
-    const pid = localStorage.getItem("pid") || "Unknown";
-    const group = localStorage.getItem("group") || "N/A";
-    const orderIndex = (parseInt(pid.replace(/\D/g, "")) - 1) % 4;
-    const trialOrder = latinOrders[orderIndex].map(i => images[i]);
-
+    
     let current = 0;
     let correct = 0;
     let wrong = 0;
