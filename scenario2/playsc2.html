@@ -42,7 +42,7 @@
     <img id="testImage" src="" alt="interface">
 
     <p>⏱ เวลาที่เหลือ: <span id="timer">30</span> วินาที</p>
-    <p>✅ ถูก: <span id="correct">0</span> | ❌ ผิด: <span id="wrong">0</span></p>
+  
   </div>
 
   <script>
@@ -156,22 +156,22 @@
     }
 
     function nextImage() {
-      current++;
-      if (current < trialOrder.length) {
-        alert("➡️ กำลังเปลี่ยนไปภาพถัดไป...");
-        loadImage();
-      } else {
-        const result = {
-          scenario: "Scenario 2",
-          pid,
-          group,
-          trials: resultsPerImage
-        };
-        localStorage.setItem("result_scenario2", JSON.stringify(result));
-        alert("✅ จบการทดสอบ Scenario 2 แล้ว!");
-        window.location.href = "../summary.html";
-      }
-    }
+  current++;
+  if (current < trialOrder.length) {
+    alert("➡️ กำลังเปลี่ยนไปภาพถัดไป...");
+    loadImage();
+  } else {
+    // ✅ เมื่อครบทุกภาพ
+    const result = {
+      scenario: "Scenario 2",
+      trials: resultsPerImage
+    };
+
+    localStorage.setItem("result_scenario2", JSON.stringify(result));
+    alert("✅ จบการทดสอบ Scenario 2 แล้ว!");
+    window.location.href = "../summary.html";
+  }
+}
 
     loadImage();
   </script>
