@@ -6,31 +6,49 @@
   <title>Lifelogging Usability Test</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    .img-caption {
-      text-align: center;
-      font-size: 0.9em;
-      color: #555;
-      margin-top: 6px;
-    }
-
-    /* ✅ ใช้ flex จัดให้ label และ input อยู่บรรทัดเดียวกัน */
-    .input-row,
-    .group-row {
+    body {
+      font-family: "Sarabun", sans-serif;
+      background: #f5f6fa;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin-top: 10px;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 30px;
     }
-
-    label {
-      font-weight: 500;
-      white-space: nowrap;
+    .container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      max-width: 550px;
+      padding: 30px;
+      text-align: center;
     }
-
-    .input-row label,
-    .group-row label {
-      flex: 0 0 180px;
+    h1 {
+      margin-bottom: 5px;
+    }
+    .note {
+      color: #666;
+      font-size: 0.9rem;
+      margin-top: 8px;
+    }
+    img {
+      border-radius: 12px;
+      max-width: 320px;
+      margin: 15px auto;
+      display: block;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      padding: 10px 20px;
+      margin-top: 20px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #0056b3;
     }
   </style>
 </head>
@@ -40,41 +58,29 @@
     <h1>Lifelogging Usability Test</h1>
     <p><strong>การประเมินความสามารถในการรับรู้และควบคุมอุปกรณ์ Lifelogging</strong></p>
 
-    <!-- 🧩 ลบช่องกรอก PID และ Group ออก -->
-
     <h2>คำแนะนำก่อนเริ่มการทดสอบ</h2>
     <p>
       การทดสอบนี้มีวัตถุประสงค์เพื่อศึกษาความเข้าใจของผู้ใช้ต่อการทำงานของอุปกรณ์ Lifelogging  
       โดยแบ่งออกเป็น 2 ส่วน (Scenario):
     </p>
-    <ul>
+    <ul style="text-align:left;">
       <li><strong>Scenario 1:</strong> การรับรู้การทำงานของอุปกรณ์ (Awareness Test)</li>
       <li><strong>Scenario 2:</strong> ความง่ายในการควบคุม (Easy Interface)</li>
     </ul>
 
     <p class="note">
-      คำตอบของคุณจะถูกนำไปใช้เพื่อวิเคราะห์และสรุปผลในงานวิจัยนี้เท่านั้น 
-      ข้อมูลที่ให้จะไม่ถูกเปิดเผยต่อบุคคลภายนอกและจะถูกเก็บรักษาเป็นความลับ
+      คำตอบของคุณจะถูกนำไปใช้เพื่อการศึกษาเท่านั้น และจะไม่มีการเปิดเผยข้อมูลต่อบุคคลภายนอก
     </p>
 
-    <img src="device.jpg" width="400" alt="Device Example" style="display:block;margin:20px auto;">
-    <p class="img-caption">รูปภาพนี้คืออุปกรณ์ Lifelogging</p>
+    <img src="device.jpg" alt="Lifelogging Device">
+    <p class="note">รูปภาพแสดงตัวอย่างอุปกรณ์ Lifelogging ที่ใช้ในการทดสอบ</p>
 
-    <button id="toInstruction" class="primary">ไปหน้า Scenario 1 Instruction</button>
+    <button id="toScreening">ไปหน้ากรอกข้อมูลผู้เข้าร่วม</button>
   </div>
 
   <script>
-    document.getElementById("toInstruction").addEventListener("click", () => {
-      // ✅ อ่านข้อมูลจาก screening แทน ไม่ต้องกรอก pid/group แล้ว
-      const participant = localStorage.getItem("participant_info");
-      if (!participant) {
-        alert("ไม่พบข้อมูลผู้เข้าร่วม โปรดทำแบบสอบถามคัดกลุ่มก่อนเริ่มการทดสอบ");
-        window.location.href = "screening.html";
-        return;
-      }
-
-      // ไปหน้า instruction
-      window.location.href = "scenario1/instruction-sc1.html";
+    document.getElementById("toScreening").addEventListener("click", () => {
+      window.location.href = "screening.html";
     });
   </script>
 </body>
