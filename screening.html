@@ -3,79 +3,148 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>แบบสอบถามคัดกลุ่มผู้เข้าร่วม - Lifelogging Usability Test</title>
+  <title>แบบสอบถามข้อมูลผู้เข้าร่วม Lifelogging Usability Test</title>
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* จัดชื่อ + อายุ ให้อยู่แถวเดียวกัน */
-    .row-name-age {
+    body {
+      font-family: "Sarabun", sans-serif;
+      background: #f5f6f8;
       display: flex;
-      gap: 12px;
-      flex-wrap: wrap;      /* ถ้าจอแคบ จะยอมตกล่างอัตโนมัติ */
-      margin-bottom: 8px;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 30px 10px;
     }
-    .row-name-age .field {
-      flex: 1;
-      min-width: 0;         /* กันไม่ให้ดันหลุดขอบ */
+
+    .container {
+      background: #ffffff;
+      max-width: 650px;
+      width: 100%;
+      border-radius: 16px;
+      padding: 24px 28px 30px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
     }
-    .row-name-age label {
+
+    h1 {
+      text-align: left;
+      margin: 0 0 8px 0;
+      font-size: 1.4rem;
+    }
+
+    h2 {
+      text-align: left;
+      margin: 0 0 18px 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .question-list {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+    }
+
+    .question-item {
+      margin-bottom: 14px;
+    }
+
+    .q-label {
       display: block;
       margin-bottom: 4px;
+      font-weight: 500;
     }
-    .row-name-age input {
+
+    input[type="text"],
+    input[type="number"] {
       width: 100%;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
       box-sizing: border-box;
+      font-size: 0.95rem;
+    }
+
+    .radio-group {
+      margin-top: 2px;
+    }
+
+    .radio-group label {
+      margin-right: 14px;
+      font-weight: 400;
+    }
+
+    button.primary {
+      margin-top: 18px;
+      width: 100%;
+    }
+
+    small.hint {
+      display: block;
+      margin-top: 2px;
+      font-size: 0.8rem;
+      color: #666;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>แบบสอบถามคัดกลุ่มผู้เข้าร่วม<br>Lifelogging Usability Test</h1>
+    <h1>แบบสอบถามข้อมูลผู้เข้าร่วม Lifelogging Usability Test</h1>
+    <h2>Lifelogging Usability Test</h2>
 
-    <p class="description">
-      แบบสอบถามนี้จัดทำขึ้นเพื่อใช้คัดกลุ่มผู้เข้าร่วมในการทดสอบความสามารถในการใช้งานของอุปกรณ์บันทึกชีวิตประจำวัน (Lifelogging Device)
-      ข้อมูลที่ให้จะถูกใช้เพื่อจำแนกผู้เข้าร่วมเท่านั้น ไม่มีผลต่อการประเมินผลใด ๆ และข้อมูลจะถูกเก็บรักษาเป็นความลับเพื่อใช้ในการวิจัยเท่านั้น
+    <p style="font-size:0.9rem; margin-bottom:18px;">
+      แบบสอบถามนี้จัดทำขึ้นเพื่อใช้คัดกลุ่มผู้เข้าร่วมในการทดสอบการใช้งานอุปกรณ์บันทึกชีวิตประจำวัน (Lifelogging Device)
+      ข้อมูลที่ให้จะใช้เพื่อการวิจัยเท่านั้น และจะถูกเก็บรักษาเป็นความลับ
     </p>
 
     <form id="screeningForm">
-      <!-- ชื่อ + อายุ อยู่แถวเดียวกัน -->
-      <div class="row-name-age">
-        <div class="field">
-          <label for="fullName">ชื่อจริง - นามสกุล</label>
-          <input type="text" id="fullName" required placeholder="เช่น นภัทร ดอนมงคล" />
-        </div>
-        <div class="field">
-          <label for="age">อายุ (ปี)</label>
-          <input type="number" id="age" min="10" max="100" required placeholder="เช่น 21" />
-        </div>
-      </div>
+      <ul class="question-list">
+        <!-- 1. ชื่อ -->
+        <li class="question-item">
+          <span class="q-label">1. ชื่อจริง – นามสกุล:</span>
+          <input type="text" id="fullName" placeholder="เช่น นภัทร ดอนมงคล" required />
+        </li>
 
-      <!-- เพศ -->
-      <label>เพศ</label>
-      <div class="radio-group">
-        <label><input type="radio" name="gender" value="ชาย" required /> ชาย</label>
-        <label><input type="radio" name="gender" value="หญิง" /> หญิง</label>
-        <label>
-          <input type="radio" name="gender" value="อื่นๆ" />
-          อื่น ๆ
-          <input type="text" id="genderOther" placeholder="โปรดระบุ" />
-        </label>
-      </div>
+        <!-- 2. อายุ -->
+        <li class="question-item">
+          <span class="q-label">2. อายุ (ปี):</span>
+          <input type="number" id="age" min="10" max="100" placeholder="เช่น 21" required />
+        </li>
 
-      <!-- เคยใช้อุปกรณ์หรือไม่ -->
-      <label>คุณเคยใช้อุปกรณ์ wearable หรืออุปกรณ์บันทึกชีวิตประจำวัน (เช่น GoPro, Smartwatch, กล้องติดตัว) หรือไม่?</label>
-      <div class="radio-group">
-        <label><input type="radio" name="usedWearable" value="เคย" required /> เคย</label>
-        <label><input type="radio" name="usedWearable" value="ไม่เคย" /> ไม่เคย</label>
-      </div>
+        <!-- 3. เพศ -->
+        <li class="question-item">
+          <span class="q-label">3. เพศ:</span>
+          <div class="radio-group">
+            <label><input type="radio" name="gender" value="ชาย" required /> ชาย</label>
+            <label><input type="radio" name="gender" value="หญิง" /> หญิง</label>
+            <label>
+              <input type="radio" name="gender" value="อื่นๆ" />
+              อื่น ๆ
+              <input type="text" id="genderOther" placeholder="โปรดระบุ" style="width: 45%; margin-left:4px;"/>
+            </label>
+          </div>
+        </li>
 
-      <!-- ความถี่ในการใช้งาน -->
-      <label>ความถี่ที่คุณใช้งานอุปกรณ์ดังกล่าวในรอบปีที่ผ่านมา</label>
-      <div class="radio-group">
-        <label><input type="radio" name="usageFreq" value="ทุกวัน" required /> ทุกวัน</label>
-        <label><input type="radio" name="usageFreq" value="เดือนละ ≥ 1 ครั้ง" /> เดือนละ ≥ 1 ครั้ง</label>
-        <label><input type="radio" name="usageFreq" value="2–6 ครั้งต่อปี" /> 2–6 ครั้งต่อปี</label>
-        <label><input type="radio" name="usageFreq" value="ไม่เคยเลย" /> ไม่เคยเลย</label>
-      </div>
+        <!-- 4. เคยใช้อุปกรณ์ไหม -->
+        <li class="question-item">
+          <span class="q-label">
+            4. คุณเคยใช้อุปกรณ์ wearable หรืออุปกรณ์บันทึกชีวิตประจำวัน (เช่น GoPro, Smartwatch, กล้องติดตัว) หรือไม่?
+          </span>
+          <div class="radio-group">
+            <label><input type="radio" name="usedWearable" value="เคย" required /> เคย</label>
+            <label><input type="radio" name="usedWearable" value="ไม่เคย" /> ไม่เคย</label>
+          </div>
+        </li>
+
+        <!-- 5. ความถี่ -->
+        <li class="question-item">
+          <span class="q-label">5. ความถี่ที่คุณใช้งานอุปกรณ์ดังกล่าวในรอบปีที่ผ่านมา:</span>
+          <div class="radio-group">
+            <label><input type="radio" name="usageFreq" value="ทุกวัน" required /> ทุกวัน</label>
+            <label><input type="radio" name="usageFreq" value="เดือนละ ≥ 1 ครั้ง" /> เดือนละ ≥ 1 ครั้ง</label>
+            <label><input type="radio" name="usageFreq" value="2–6 ครั้งต่อปี" /> 2–6 ครั้งต่อปี</label>
+            <label><input type="radio" name="usageFreq" value="ไม่เคยเลย" /> ไม่เคยเลย</label>
+          </div>
+        </li>
+      </ul>
 
       <button type="submit" class="primary">ไปยังหน้า Scenario 1 Instruction</button>
     </form>
@@ -84,7 +153,7 @@
   <script>
     const form = document.getElementById("screeningForm");
 
-    form.addEventListener("submit", (e) => {
+    form.addEventListener("submit", function (e) {
       e.preventDefault();
 
       const fullName = document.getElementById("fullName").value.trim();
@@ -95,40 +164,39 @@
       const genderOtherInput = document.getElementById("genderOther");
 
       let gender = "";
-      genderRadios.forEach(r => { if (r.checked) gender = r.value; });
+      genderRadios.forEach(function (r) { if (r.checked) gender = r.value; });
       if (gender === "อื่นๆ" && genderOtherInput.value.trim() !== "") {
         gender = "อื่นๆ: " + genderOtherInput.value.trim();
       }
 
       let usedWearable = "";
-      usedWearableRadios.forEach(r => { if (r.checked) usedWearable = r.value; });
+      usedWearableRadios.forEach(function (r) { if (r.checked) usedWearable = r.value; });
 
       let usageFreq = "";
-      usageFreqRadios.forEach(r => { if (r.checked) usageFreq = r.value; });
+      usageFreqRadios.forEach(function (r) { if (r.checked) usageFreq = r.value; });
 
       if (!fullName || !gender || !age || !usedWearable || !usageFreq) {
         alert("กรุณากรอกข้อมูลให้ครบถ้วน");
         return;
       }
 
-      // จัดกลุ่มอัตโนมัติ
+      // จัดกลุ่มอัตโนมัติจากประสบการณ์ใช้งาน
       let group = "ไม่คุ้นเคย";
       if (usedWearable === "เคย" && usageFreq !== "ไม่เคยเลย") {
         group = "คุ้นเคย";
       }
 
       const participantInfo = {
-        fullName,
-        gender,
+        fullName: fullName,
+        gender: gender,
         age: Number(age),
-        usedWearable,
-        usageFreq,
-        group
+        usedWearable: usedWearable,
+        usageFreq: usageFreq,
+        group: group
       };
 
       localStorage.setItem("participant_info", JSON.stringify(participantInfo));
 
-      // ไปหน้า Scenario 1 Instruction
       window.location.href = "scenario1/instruction-sc1.html";
     });
   </script>
