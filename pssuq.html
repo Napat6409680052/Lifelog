@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PSSUQ Questionnaire</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>PSSUQ - Post-Study System Usability Questionnaire</h1>
+    <p class="description">
+      โปรดให้คะแนนความเห็นของคุณต่อระบบนี้โดยรวม<br>
+      1 = ไม่เห็นด้วยอย่างยิ่ง &nbsp; … &nbsp; 7 = เห็นด้วยอย่างยิ่ง
+    </p>
+
+    <form id="pssuqForm">
+      <ol id="pssuqText">
+        <li>โดยรวมแล้ว ฉันพึงพอใจกับระบบนี้</li>
+        <li>ระบบนี้ช่วยให้ฉันทำงานเสร็จได้อย่างมีประสิทธิภาพ</li>
+        <li>ระบบนี้ช่วยให้ฉันทำงานเสร็จได้อย่างรวดเร็ว</li>
+        <li>ฉันสามารถทำในสิ่งที่ต้องการด้วยระบบนี้ได้</li>
+        <li>การเรียนรู้การใช้งานระบบนี้เป็นเรื่องง่ายสำหรับฉัน</li>
+        <li>ฉันรู้สึกสะดวกสบายในการใช้ระบบนี้</li>
+        <li>ฉันพอใจกับเวลาที่ใช้ในการเรียนรู้วิธีใช้ระบบนี้</li>
+        <li>ฉันสามารถหาข้อมูลที่ต้องการในระบบได้ง่าย</li>
+        <li>ข้อมูลที่ระบบแสดงมีความชัดเจน</li>
+        <li>ฉันเข้าใจสัญญาณเตือนหรือข้อความแจ้งของระบบได้ดี</li>
+        <li>ข้อมูลที่ได้จากระบบมีประโยชน์ต่อฉัน</li>
+        <li>รูปแบบการนำเสนอของระบบเหมาะสม</li>
+        <li>โดยรวมแล้ว ฉันพอใจกับคุณภาพของข้อมูลที่ระบบแสดง</li>
+        <li>เมื่อเกิดข้อผิดพลาด ฉันเข้าใจว่าต้องทำอย่างไรต่อ</li>
+        <li>ระบบช่วยให้ฉันแก้ข้อผิดพลาดได้ง่าย</li>
+        <li>โดยรวมแล้ว ฉันพอใจกับความง่ายในการใช้งานของระบบนี้</li>
+      </ol>
+
+      <div id="pssuqQuestions"></div>
+
+      <button type="submit" class="primary">บันทึกและไปหน้าสรุปผล</button>
+    </form>
+  </div>
+
+  <script>
+    const qContainer = document.getElementById("pssuqQuestions");
+    const total = 16;
+
+    for (let i = 1; i <= total; i++) {
+      const row = document.createElement("div");
+      row.className = "likert-row";
+      row.innerHTML = `
+        <span>ข้อที่ ${i}</span>
+        <div class="likert-options">
+          ${[1,2,3,4,5,6,7].map(v => `
+            <label>
+              <input type="radio" name="pssuq_q${i}" value="${v}" required />
+              ${v}
+            </label>
+          `).join("")}
+        </div>
+      `;
+      qContainer.appendChild(row);
+    }
+
+    document.getElementById("pssuqForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const answers = [];
+      for (let i = 1; i <= total; i++) {
+        const checked = document.querySelector(`input[name="pssuq_q${i}"]:checked`);
+        if (!checked) {
+          alert(`กรุณาให้คะแนนข้อที่ ${i}`);
+          return;
+        }
+        answers.push(Number(checked.value));
+      }
+
+      const pssuqResult = {
+        answers,
+        createdAt: new Date().toISOString()
+      };
+
+      localStorage.setItem("pssuq_result", JSON.stringify(pssuqResult));
+
+      window.location.href = "summary.html";
+    });
+  </script>
+</body>
+</html>

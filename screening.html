@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>แบบสอบถามคัดกลุ่มผู้เข้าร่วม - Lifelogging Usability Test</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>แบบสอบถามคัดกลุ่มผู้เข้าร่วม<br>Lifelogging Usability Test</h1>
+
+    <p class="description">
+      แบบสอบถามนี้จัดทำขึ้นเพื่อใช้คัดกลุ่มผู้เข้าร่วมในการทดสอบความสามารถในการใช้งานของอุปกรณ์บันทึกชีวิตประจำวัน (Lifelogging Device)
+      ข้อมูลที่ให้จะถูกใช้เพื่อจำแนกผู้เข้าร่วมเท่านั้น ไม่มีผลต่อการประเมินผลใด ๆ และข้อมูลจะถูกเก็บรักษาเป็นความลับเพื่อใช้ในการวิจัยเท่านั้น
+    </p>
+
+    <form id="screeningForm">
+      <!-- ชื่อจริง - นามสกุล -->
+      <label for="fullName">ชื่อจริง - นามสกุล</label>
+      <input type="text" id="fullName" required placeholder="เช่น นภัทร ดอนมงคล" />
+
+      <!-- เพศ -->
+      <label>เพศ</label>
+      <div class="radio-group">
+        <label><input type="radio" name="gender" value="ชาย" required /> เพศชาย</label>
+        <label><input type="radio" name="gender" value="หญิง" /> เพศหญิง</label>
+        <label>
+          <input type="radio" name="gender" value="อื่นๆ" />
+          อื่น ๆ
+          <input type="text" id="genderOther" placeholder="โปรดระบุ" />
+        </label>
+      </div>
+
+      <!-- อายุ -->
+      <label for="age">อายุ (ปี)</label>
+      <input type="number" id="age" min="10" max="100" required placeholder="เช่น 21" />
+
+      <!-- เคยใช้อุปกรณ์หรือไม่ -->
+      <label>คุณเคยใช้อุปกรณ์ wearable หรืออุปกรณ์บันทึกชีวิตประจำวัน (เช่น GoPro, Smartwatch, กล้องติดตัว) หรือไม่?</label>
+      <div class="radio-group">
+        <label><input type="radio" name="usedWearable" value="เคย" required /> เคย</label>
+        <label><input type="radio" name="usedWearable" value="ไม่เคย" /> ไม่เคย</label>
+      </div>
+
+      <!-- ความถี่ในการใช้งาน -->
+      <label>ความถี่ที่คุณใช้งานอุปกรณ์ดังกล่าวในรอบปีที่ผ่านมา</label>
+      <div class="radio-group">
+        <label><input type="radio" name="usageFreq" value="ทุกวัน" required /> ทุกวัน</label>
+        <label><input type="radio" name="usageFreq" value="เดือนละ ≥ 1 ครั้ง" /> เดือนละ ≥ 1 ครั้ง</label>
+        <label><input type="radio" name="usageFreq" value="2–6 ครั้งต่อปี" /> 2–6 ครั้งต่อปี</label>
+        <label><input type="radio" name="usageFreq" value="ไม่เคยเลย" /> ไม่เคยเลย</label>
+      </div>
+
+      <button type="submit" class="primary">บันทึกและไปหน้าโฮม</button>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById("screeningForm");
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const fullName = document.getElementById("fullName").value.trim();
+      const age = document.getElementById("age").value;
+      const genderRadios = document.querySelectorAll("input[name='gender']");
+      const usedWearableRadios = document.querySelectorAll("input[name='usedWearable']");
+      const usageFreqRadios = document.querySelectorAll("input[name='usageFreq']");
+      const genderOtherInput = document.getElementById("genderOther");
+
+      let gender = "";
+      genderRadios.forEach(r => { if (r.checked) gender = r.value; });
+      if (gender === "อื่นๆ" && genderOtherInput.value.trim() !== "") {
+        gender = "อื่นๆ: " + genderOtherInput.value.trim();
+      }
+
+      let usedWearable = "";
+      usedWearableRadios.forEach(r => { if (r.checked) usedWearable = r.value; });
+
+      let usageFreq = "";
+      usageFreqRadios.forEach(r => { if (r.checked) usageFreq = r.value; });
+
+      if (!fullName || !gender || !age || !usedWearable || !usageFreq) {
+        alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+        return;
+      }
+
+      // จัดกลุ่มอัตโนมัติ
+      let group = "ไม่คุ้นเคย";
+      if (usedWearable === "เคย" && usageFreq !== "ไม่เคยเลย") {
+        group = "คุ้นเคย";
+      }
+
+      const participantInfo = {
+        fullName,
+        gender,
+        age: Number(age),
+        usedWearable,
+        usageFreq,
+        group
+      };
+
+      localStorage.setItem("participant_info", JSON.stringify(participantInfo));
+
+      // ไปหน้าโฮม
+      window.location.href = "index.html";
+    });
+  </script>
+</body>
+</html>

@@ -12,7 +12,7 @@
     <h2>Scenario 1 – การรับรู้การทำงานของอุปกรณ์ (Awareness Test)</h2>
 
     <p>
-      ทุก Task จะมีการแสดงรูปภาพหรือวิดีโอ กรุณารอให้แสดงจนจบก่อนตอบคำถาม 
+      แบบทดสอบจะมีจำนวน 3 task ซึ่งใน 1 task จะมี 20 trials และทุก Task จะมีการแสดงรูปภาพหรือวิดีโอ กรุณารอให้แสดงจนจบก่อนตอบคำถาม 
       โปรดตอบตามความเข้าใจของท่านว่า
       <br><br>
        "อุปกรณ์กำลังทำงานอยู่หรือไม่ และอยู่ในสภาพใด ?"
@@ -21,25 +21,24 @@
     <button id="startBtn" class="primary">เริ่ม Scenario 1</button>
   </div>
 
-  <script>
+<script>
 document.getElementById("startBtn").addEventListener("click", () => {
   const pid = localStorage.getItem("pid");
   if (!pid) {
     alert("กรุณากรอก Participant ID ที่หน้าแรกก่อน");
-    window.location.href = "index.html";
+    window.location.href = "../index.html";
     return;
   }
 
-  // ===== ละตินสแควร์ 4 แบบ =====
+  // ===== ละตินสแควร์ 3 แบบ (LED, Sound, Vibration) =====
   const latinOrders = {
-    "1": ["LED", "Sound", "Vibration", "None"],
-    "2": ["Sound", "Vibration", "None", "LED"],
-    "3": ["Vibration", "None", "LED", "Sound"],
-    "4": ["None", "LED", "Sound", "Vibration"]
+    "1": ["LED", "Sound", "Vibration"],
+    "2": ["Sound", "Vibration", "LED"],
+    "3": ["Vibration", "LED", "Sound"]
   };
 
-  // ===== สุ่มเลือกชุดละติน (1–4) =====
-  const order = String(Math.floor(Math.random() * 4) + 1);
+  // ===== สุ่มเลือกชุดละติน (1–3) =====
+  const order = String(Math.floor(Math.random() * 3) + 1);
   const taskOrder = latinOrders[order];
   localStorage.setItem("order", order);
   localStorage.setItem("taskOrder", JSON.stringify(taskOrder));
@@ -49,12 +48,12 @@ document.getElementById("startBtn").addEventListener("click", () => {
   const fileMap = {
     "LED": "task1.html",
     "Sound": "task2.html",
-    "Vibration": "task3.html",
-    "None": "task4.html"
+    "Vibration": "task3.html"
   };
   window.location.href = fileMap[firstTask];
 });
 </script>
+
 
 </body>
 </html>

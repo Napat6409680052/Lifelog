@@ -63,6 +63,26 @@
 
   <script>
     function startTest() {
+      // ชื่อไฟล์ภาพทั้ง 4 แบบ
+      const images = ["bicon.png", "bictext.png", "onlybotton.png", "original.png"];
+
+      // ละตินออร์เดอร์ 4 ชุด (สลับลำดับ)
+      const latinOrders = {
+        "1": ["bicon.png",    "bictext.png",   "onlybotton.png", "original.png"],
+        "2": ["bictext.png",  "onlybotton.png","original.png",   "bicon.png"],
+        "3": ["onlybotton.png","original.png", "bicon.png",      "bictext.png"],
+        "4": ["original.png", "bicon.png",     "bictext.png",    "onlybotton.png"]
+      };
+
+      // สุ่มเลือกชุดละติน 1–4 สำหรับผู้เข้าร่วมคนนี้
+      const orderId = String(Math.floor(Math.random() * 4) + 1);
+      const trialOrder = latinOrders[orderId] || images;
+
+      // เก็บไว้ให้ playsc2 อ่านใช้
+      localStorage.setItem("sc2_order", orderId);
+      localStorage.setItem("sc2_trialOrder", JSON.stringify(trialOrder));
+
+      // ไปหน้าเล่น Scenario 2
       window.location.href = "playsc2.html";
     }
   </script>

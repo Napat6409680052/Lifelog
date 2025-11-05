@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SUS Questionnaire</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>SUS - System Usability Scale</h1>
+    <p class="description">
+      โปรดให้คะแนนในแต่ละข้อ ตามความรู้สึกของคุณต่อการใช้งานระบบทั้งหมดที่ผ่านมา<br>
+      1 = ไม่เห็นด้วยอย่างยิ่ง &nbsp; … &nbsp; 5 = เห็นด้วยอย่างยิ่ง
+    </p>
+
+    <form id="susForm">
+      <ol>
+        <li>ฉันคิดว่าฉันจะใช้งานระบบนี้บ่อย ๆ</li>
+        <li>ฉันรู้สึกว่าระบบนี้ซับซ้อนเกินไป</li>
+        <li>ฉันคิดว่าระบบนี้ใช้งานได้ง่าย</li>
+        <li>ฉันคิดว่าฉันต้องการความช่วยเหลือจากคนอื่นเพื่อใช้งานระบบนี้</li>
+        <li>ฉันคิดว่าฟังก์ชันต่าง ๆ ในระบบนี้ถูกออกแบบมาอย่างดี</li>
+        <li>ฉันคิดว่ามีความไม่สอดคล้องกันหลายอย่างในระบบนี้</li>
+        <li>ฉันคิดว่าคนส่วนใหญ่จะเรียนรู้การใช้ระบบนี้ได้อย่างรวดเร็ว</li>
+        <li>ฉันคิดว่าระบบนี้ใช้งานได้ยุ่งยาก</li>
+        <li>ฉันรู้สึกมั่นใจเมื่อใช้งานระบบนี้</li>
+        <li>ฉันต้องเรียนรู้หลายอย่างก่อนจึงจะใช้งานระบบนี้ได้</li>
+      </ol>
+
+      <div id="susQuestions"></div>
+
+      <button type="submit" class="primary">บันทึกและไปแบบสอบถาม PSSUQ</button>
+    </form>
+  </div>
+
+  <script>
+    // สร้าง radio 1–5 สำหรับแต่ละข้อ
+    const container = document.getElementById("susQuestions");
+    const total = 10;
+
+    for (let i = 1; i <= total; i++) {
+      const row = document.createElement("div");
+      row.className = "likert-row";
+      row.innerHTML = `
+        <span>ข้อที่ ${i}</span>
+        <div class="likert-options">
+          ${[1,2,3,4,5].map(v => `
+            <label>
+              <input type="radio" name="sus_q${i}" value="${v}" required />
+              ${v}
+            </label>
+          `).join("")}
+        </div>
+      `;
+      container.appendChild(row);
+    }
+
+    document.getElementById("susForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const answers = [];
+      for (let i = 1; i <= total; i++) {
+        const checked = document.querySelector(`input[name="sus_q${i}"]:checked`);
+        if (!checked) {
+          alert(`กรุณาให้คะแนนข้อที่ ${i}`);
+          return;
+        }
+        answers.push(Number(checked.value));
+      }
+
+      const susResult = {
+        answers,
+        createdAt: new Date().toISOString()
+      };
+
+      localStorage.setItem("sus_result", JSON.stringify(susResult));
+
+      window.location.href = "pssuq.html";
+    });
+  </script>
+</body>
+</html>

@@ -27,42 +27,55 @@
       border-radius: 10px;
       box-shadow: 0 0 8px rgba(0,0,0,0.15);
       margin-top: 10px;
+      cursor: pointer;
     }
     #timer {
       font-weight: bold;
       color: #3b82f6;
+    }
+    .stats {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: #555;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h2>Scenario 2 (Easy Interface Test)</h2>
-    <p id="progress">ภาพ 1 / 4</p>
+    <p id="progress"></p>
 
     <img id="testImage" src="" alt="interface">
 
     <p>⏱ เวลาที่เหลือ: <span id="timer">30</span> วินาที</p>
-  
+    <!-- ตัวเลขถูก/ผิดต่อภาพ (แก้ให้มี element จริง ๆ แล้ว JS จะไม่ error) -->
+    <p class="stats">
+      คลิกถูก: <span id="correct">0</span> | คลิกผิด: <span id="wrong">0</span>
+    </p>
   </div>
 
   <script>
+    // ไฟล์ภาพทั้งหมด (ใช้เป็น fallback ถ้าไม่มี order จาก instruction)
     const images = ["bicon.png", "bictext.png", "onlybotton.png", "original.png"];
+
     const buttonAreas = {
       "bicon.png":      { x: 0.250, y: 0.190, w: 0.080, h: 0.065 },
       "bictext.png":    { x: 0.250, y: 0.190, w: 0.080, h: 0.065 },
       "onlybotton.png": { x: 0.250, y: 0.190, w: 0.080, h: 0.065 },
-      "original.png":   null
+      "original.png":   null // รูปนี้ถือว่า "ไม่มีปุ่มชัดเจน"
     };
 
-    // ✅ ลำดับภาพจะถูกสุ่มใหม่ทุกครั้งที่เริ่ม Scenario 2
-    const trialOrder = images.sort(() => Math.random() - 0.5);
+    // ✅ พยายามอ่านลำดับจาก instruction-sc2 (ละตินออร์เดอร์)
+    const storedOrder = JSON.parse(localStorage.getItem("sc2_trialOrder") || "null");
+    const trialOrder = Array.isArray(storedOrder) && storedOrder.length
+      ? storedOrder
+      : images.slice().sort(() => Math.random() - 0.5); // เผื่อกรณีเข้าหน้านี้ตรง ๆ
 
-    
     let current = 0;
     let correct = 0;
     let wrong = 0;
-    let clickCount = 0;       // ✅ จำนวนคลิกทั้งหมด
-    let clickLogs = [];       // ✅ เก็บพิกัดการกดทั้งหมด
+    let clickCount = 0;       // จำนวนคลิกทั้งหมด
+    let clickLogs = [];       // เก็บพิกัดการกดทั้งหมด
     let timeLeft = 30;
     let timer = null;
     let startTime = 0;
@@ -76,6 +89,7 @@
     const progressEl = document.getElementById("progress");
 
     function loadImage() {
+      // reset ค่าในแต่ละภาพ
       correct = 0;
       wrong = 0;
       clickCount = 0;
@@ -103,7 +117,7 @@
     }
 
     imgEl.addEventListener("click", (e) => {
-      clickCount++; // ✅ นับจำนวนคลิกทั้งหมด
+      clickCount++; // นับจำนวนคลิกทั้งหมด
 
       const rect = imgEl.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width;
@@ -123,7 +137,7 @@
         wrong++;
       }
 
-      // ✅ เก็บ log การคลิกแต่ละครั้ง
+      // เก็บ log การคลิกแต่ละครั้ง
       clickLogs.push({
         x: x.toFixed(3),
         y: y.toFixed(3),
@@ -140,7 +154,7 @@
         "⏰ หมดเวลาแล้ว!\nคุณมั่นใจแค่ไหนว่าระบุตำแหน่งถูกต้อง?\n( [1] ไม่มั่นใจเลย – [5] มั่นใจที่สุด )"
       );
 
-      const solved = reactionTime !== null; // ✅ คลิกถูกสักครั้งไหม
+      const solved = reactionTime !== null; // คลิกถูกสักครั้งไหม
 
       resultsPerImage.push({
         image: trialOrder[current],
@@ -156,23 +170,25 @@
     }
 
     function nextImage() {
-  current++;
-  if (current < trialOrder.length) {
-    alert("➡️ กำลังเปลี่ยนไปภาพถัดไป...");
-    loadImage();
-  } else {
-    // ✅ เมื่อครบทุกภาพ
-    const result = {
-      scenario: "Scenario 2",
-      trials: resultsPerImage
-    };
+      current++;
+      if (current < trialOrder.length) {
+        alert("➡️ กำลังเปลี่ยนไปภาพถัดไป...");
+        loadImage();
+      } else {
+        // ✅ ครบทุกภาพแล้ว → เก็บผลลง localStorage แล้วไป SUS
+        const result = {
+          scenario: "Scenario 2",
+          trials: resultsPerImage
+        };
 
-    localStorage.setItem("result_scenario2", JSON.stringify(result));
-    alert("✅ จบการทดสอบ Scenario 2 แล้ว!");
-    window.location.href = "../summary.html";
-  }
-}
+        localStorage.setItem("result_scenario2", JSON.stringify(result));
+        alert("✅ จบการทดสอบ Scenario 2 แล้ว!");
+        // เปลี่ยนจากไป summary → ไป SUS ตาม flow ใหม่
+        window.location.href = "../sus.html";
+      }
+    }
 
+    // เริ่มภาพแรก
     loadImage();
   </script>
 </body>

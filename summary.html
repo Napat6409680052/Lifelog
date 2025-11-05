@@ -56,15 +56,17 @@
     function exportExcel() {
       const s1 = JSON.parse(localStorage.getItem("result_scenario1") || "null");
       const s2 = JSON.parse(localStorage.getItem("result_scenario2") || "null");
+      const participant = JSON.parse(localStorage.getItem("participant_info") || "null");
+
       if (!s1 || !s2) {
         alert("⚠️ ยังไม่พบข้อมูลจากการทดลองทั้งสองซีนาเรียโอ้");
         return;
       }
 
-      // รวมข้อมูลจาก Scenario 1
+      // ----- รวมข้อมูลจาก Scenario 1 (แถวละ 1 condition summary) -----
       const s1Rows = (s1.tasks || []).map(t => ({
-        PID: s1.pid,
-        Group: s1.group,
+        PID: s1.pid || (participant && participant.fullName) || "",
+        GroupRaw: s1.group || (participant && participant.group) || "",
         Scenario: "Scenario 1 (การรับรู้สัญญาณ)",
         TaskOrImage: t.task,
         Correct: t.correct,
@@ -73,10 +75,10 @@
         Confidence: t.avg_confidence || "-"
       }));
 
-      // รวมข้อมูลจาก Scenario 2
+      // ----- รวมข้อมูลจาก Scenario 2 (แถวละ 1 trial) -----
       const s2Rows = (s2.trials || []).map(t => ({
-        PID: s2.pid,
-        Group: s2.group,
+        PID: s2.pid || (participant && participant.fullName) || "",
+        GroupRaw: s2.group || (participant && participant.group) || "",
         Scenario: "Scenario 2 (ความเข้าใจต่ออินเทอร์เฟซ)",
         TaskOrImage: t.image,
         Correct: t.correct,
@@ -88,20 +90,40 @@
 
       const allRows = [...s1Rows, ...s2Rows];
 
-      // โหลดข้อมูลเดิมในเครื่อง (ถ้ามี)
+      // ----- โหลดข้อมูลเดิมในเครื่อง (สะสมหลายคน) -----
       let g1 = JSON.parse(localStorage.getItem("excel_group1") || "[]");
       let g2 = JSON.parse(localStorage.getItem("excel_group2") || "[]");
 
-      // แยกตาม group
-      if (s1.group === "1" || s2.group === "1") g1.push(...allRows);
-      else if (s1.group === "2" || s2.group === "2") g2.push(...allRows);
-      else alert("⚠️ ไม่พบหมายเลขกลุ่ม (ควรเป็น 1 หรือ 2)");
+      // ----- ตีความ group ให้ครอบคลุมหลายแบบ -----
+      // ลองดึงจาก s1/s2 ถ้าไม่มีลองจาก screening หรือ localStorage.group เดิม
+      const groupLabelRaw =
+        (s1 && s1.group) ||
+        (s2 && s2.group) ||
+        (participant && participant.group) ||
+        localStorage.getItem("group") ||
+        "";
 
-      // บันทึกข้อมูลสะสมไว้ใน localStorage
+      const groupLabel = String(groupLabelRaw);
+
+      // กลุ่ม 1: `"1"`, `"Well-being"`, หรือมีคำว่า `"คุ้นเคย"`
+      const isGroup1 =
+        groupLabel === "1" ||
+        groupLabel === "Well-being" ||
+        groupLabel.includes("คุ้นเคย") ||
+        groupLabel.includes("กลุ่มที่ 1");
+
+      if (isGroup1) {
+        g1.push(...allRows);
+      } else {
+        // ที่เหลือโยนไปกลุ่ม 2 หมด: "2", "Non-user", "ไม่คุ้นเคย" ฯลฯ
+        g2.push(...allRows);
+      }
+
+      // ----- เซฟข้อมูลสะสมกลับลง localStorage -----
       localStorage.setItem("excel_group1", JSON.stringify(g1));
       localStorage.setItem("excel_group2", JSON.stringify(g2));
 
-      // สร้าง workbook
+      // ----- สร้างไฟล์ Excel ที่มี 2 ชีท -----
       const wb = XLSX.utils.book_new();
       const ws1 = XLSX.utils.json_to_sheet(g1);
       const ws2 = XLSX.utils.json_to_sheet(g2);
