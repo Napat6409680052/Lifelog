@@ -76,9 +76,9 @@
 
   function vibratePattern(stim) {
     switch (stim) {
-      case "normal": navigator.vibrate([1000]); break;
-      case "minor": navigator.vibrate([200,200,200]); break;
-      case "critical": navigator.vibrate([100,100,100,100,100,100]); break;
+      case "normal": navigator.vibrate([3000]); break;
+      case "minor": navigator.vibrate([200,200,200,200,200]); break;
+      case "critical": navigator.vibrate([100,100,100,100,100,100,100,100,100,100,100]); break;
       case "none": navigator.vibrate(0); break;
     }
   }
