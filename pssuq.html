@@ -5,6 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PSSUQ Questionnaire</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    .question-block {
+      margin-bottom: 14px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: #f8f9fa;
+    }
+    .question-text {
+      margin: 0 0 6px 0;
+      text-align: left;
+    }
+    .likert-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .likert-options label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.9rem;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
@@ -15,25 +38,6 @@
     </p>
 
     <form id="pssuqForm">
-      <ol id="pssuqText">
-        <li>โดยรวมแล้ว ฉันพึงพอใจกับระบบนี้</li>
-        <li>ระบบนี้ช่วยให้ฉันทำงานเสร็จได้อย่างมีประสิทธิภาพ</li>
-        <li>ระบบนี้ช่วยให้ฉันทำงานเสร็จได้อย่างรวดเร็ว</li>
-        <li>ฉันสามารถทำในสิ่งที่ต้องการด้วยระบบนี้ได้</li>
-        <li>การเรียนรู้การใช้งานระบบนี้เป็นเรื่องง่ายสำหรับฉัน</li>
-        <li>ฉันรู้สึกสะดวกสบายในการใช้ระบบนี้</li>
-        <li>ฉันพอใจกับเวลาที่ใช้ในการเรียนรู้วิธีใช้ระบบนี้</li>
-        <li>ฉันสามารถหาข้อมูลที่ต้องการในระบบได้ง่าย</li>
-        <li>ข้อมูลที่ระบบแสดงมีความชัดเจน</li>
-        <li>ฉันเข้าใจสัญญาณเตือนหรือข้อความแจ้งของระบบได้ดี</li>
-        <li>ข้อมูลที่ได้จากระบบมีประโยชน์ต่อฉัน</li>
-        <li>รูปแบบการนำเสนอของระบบเหมาะสม</li>
-        <li>โดยรวมแล้ว ฉันพอใจกับคุณภาพของข้อมูลที่ระบบแสดง</li>
-        <li>เมื่อเกิดข้อผิดพลาด ฉันเข้าใจว่าต้องทำอย่างไรต่อ</li>
-        <li>ระบบช่วยให้ฉันแก้ข้อผิดพลาดได้ง่าย</li>
-        <li>โดยรวมแล้ว ฉันพอใจกับความง่ายในการใช้งานของระบบนี้</li>
-      </ol>
-
       <div id="pssuqQuestions"></div>
 
       <button type="submit" class="primary">บันทึกและไปหน้าสรุปผล</button>
@@ -41,46 +45,79 @@
   </div>
 
   <script>
-    const qContainer = document.getElementById("pssuqQuestions");
-    const total = 16;
+    // รายการคำถาม PSSUQ
+    var pssuqQuestions = [
+      "โดยรวมแล้ว ฉันพึงพอใจกับระบบนี้",
+      "ระบบนี้ช่วยให้ฉันทำงานเสร็จได้อย่างมีประสิทธิภาพ",
+      "ระบบนี้ช่วยให้ฉันทำงานเสร็จได้อย่างรวดเร็ว",
+      "ฉันสามารถทำในสิ่งที่ต้องการด้วยระบบนี้ได้",
+      "การเรียนรู้การใช้งานระบบนี้เป็นเรื่องง่ายสำหรับฉัน",
+      "ฉันรู้สึกสะดวกสบายในการใช้ระบบนี้",
+      "ฉันพอใจกับเวลาที่ใช้ในการเรียนรู้วิธีใช้ระบบนี้",
+      "ฉันสามารถหาข้อมูลที่ต้องการในระบบได้ง่าย",
+      "ข้อมูลที่ระบบแสดงมีความชัดเจน",
+      "ฉันเข้าใจสัญญาณเตือนหรือข้อความแจ้งของระบบได้ดี",
+      "ข้อมูลที่ได้จากระบบมีประโยชน์ต่อฉัน",
+      "รูปแบบการนำเสนอของระบบเหมาะสม",
+      "โดยรวมแล้ว ฉันพอใจกับคุณภาพของข้อมูลที่ระบบแสดง",
+      "เมื่อเกิดข้อผิดพลาด ฉันเข้าใจว่าต้องทำอย่างไรต่อ",
+      "ระบบช่วยให้ฉันแก้ข้อผิดพลาดได้ง่าย",
+      "โดยรวมแล้ว ฉันพอใจกับความง่ายในการใช้งานของระบบนี้"
+    ];
 
-    for (let i = 1; i <= total; i++) {
-      const row = document.createElement("div");
-      row.className = "likert-row";
-      row.innerHTML = `
-        <span>ข้อที่ ${i}</span>
-        <div class="likert-options">
-          ${[1,2,3,4,5,6,7].map(v => `
-            <label>
-              <input type="radio" name="pssuq_q${i}" value="${v}" required />
-              ${v}
-            </label>
-          `).join("")}
-        </div>
-      `;
-      qContainer.appendChild(row);
+    var pContainer = document.getElementById("pssuqQuestions");
+
+    // สร้างบล็อกคำถามทีละข้อ
+    for (var i = 0; i < pssuqQuestions.length; i++) {
+      var block = document.createElement("div");
+      block.className = "question-block";
+
+      var p = document.createElement("p");
+      p.className = "question-text";
+      p.textContent = "ข้อที่ " + (i + 1) + ". " + pssuqQuestions[i];
+      block.appendChild(p);
+
+      var opts = document.createElement("div");
+      opts.className = "likert-options";
+
+      for (var v = 1; v <= 7; v++) {
+        var label = document.createElement("label");
+
+        var input = document.createElement("input");
+        input.type = "radio";
+        input.name = "pssuq_q" + (i + 1);
+        input.value = v;
+        if (v === 1) input.required = true;
+
+        label.appendChild(input);
+        label.appendChild(document.createTextNode(String(v)));
+
+        opts.appendChild(label);
+      }
+
+      block.appendChild(opts);
+      pContainer.appendChild(block);
     }
 
-    document.getElementById("pssuqForm").addEventListener("submit", (e) => {
+    document.getElementById("pssuqForm").addEventListener("submit", function (e) {
       e.preventDefault();
 
-      const answers = [];
-      for (let i = 1; i <= total; i++) {
-        const checked = document.querySelector(`input[name="pssuq_q${i}"]:checked`);
+      var answers = [];
+      for (var i = 1; i <= pssuqQuestions.length; i++) {
+        var checked = document.querySelector('input[name="pssuq_q' + i + '"]:checked');
         if (!checked) {
-          alert(`กรุณาให้คะแนนข้อที่ ${i}`);
+          alert("กรุณาให้คะแนนข้อที่ " + i);
           return;
         }
         answers.push(Number(checked.value));
       }
 
-      const pssuqResult = {
-        answers,
+      var pssuqResult = {
+        answers: answers,
         createdAt: new Date().toISOString()
       };
 
       localStorage.setItem("pssuq_result", JSON.stringify(pssuqResult));
-
       window.location.href = "summary.html";
     });
   </script>
