@@ -76,10 +76,10 @@
 
   function vibratePattern(stim) {
     switch (stim) {
-      case "normal": navigator.vibrate([2000,2000,2000]); break;
-      case "minor": navigator.vibrate([200,200,200,200,200,200,200,200,200]); break;
+      case "normal":   navigator.vibrate([2000,2000,2000]); break;
+      case "minor":    navigator.vibrate([200,200,200,200,200,200,200,200,200]); break;
       case "critical": navigator.vibrate([100,100,100,100,100,100,100,100,100,100,100]); break;
-      case "none": navigator.vibrate(0); break;
+      case "none":     navigator.vibrate(0); break;
     }
   }
 
@@ -157,7 +157,9 @@
   }
 
   function endTask() {
+    // 1) เซฟข้อมูล trial-level ของ task นี้
     localStorage.setItem(`scenario1_data_${taskName}`, JSON.stringify(data));
+
     const order = taskOrder;
     const currentIndex = order.indexOf(taskName);
     const nextTask = order[currentIndex + 1];
@@ -173,6 +175,54 @@
       nextMsg.textContent = `✅ จบ Task ${currentIndex + 1}/${totalTasks} แล้ว → กำลังไป Task ถัดไป (${nextTask})...`;
       setTimeout(()=> window.location.href = fileMap[nextTask], 1000);
     } else {
+      // 🎯 ไม่มี task ถัดไป = จบ Scenario 1 → รวมผลทุก task เป็น result_scenario1
+
+      const ledData   = JSON.parse(localStorage.getItem("scenario1_data_LED") || "[]");
+      const soundData = JSON.parse(localStorage.getItem("scenario1_data_Sound") || "[]");
+      const vibData   = JSON.parse(localStorage.getItem("scenario1_data_Vibration") || "[]");
+
+      function summarizeTask(taskName, arr) {
+        if (!arr.length) return null;
+        let correct = 0, wrong = 0;
+        let sumRT = 0, rtCount = 0;
+        let sumConf = 0, confCount = 0;
+
+        arr.forEach(tr => {
+          if (tr.is_correct) correct++; else wrong++;
+          const rt = parseFloat(tr.rt_sec);
+          if (!isNaN(rt)) { sumRT += rt; rtCount++; }
+          const conf = Number(tr.confidence);
+          if (!isNaN(conf)) { sumConf += conf; confCount++; }
+        });
+
+        return {
+          task: taskName,
+          correct,
+          wrong,
+          rt_avg: rtCount ? (sumRT / rtCount).toFixed(3) : "-",
+          avg_confidence: confCount ? (sumConf / confCount).toFixed(2) : "-"
+        };
+      }
+
+      const tasksSummary = [];
+      const s1_led = summarizeTask("LED", ledData);
+      const s1_sound = summarizeTask("Sound", soundData);
+      const s1_vib = summarizeTask("Vibration", vibData);
+      if (s1_led) tasksSummary.push(s1_led);
+      if (s1_sound) tasksSummary.push(s1_sound);
+      if (s1_vib) tasksSummary.push(s1_vib);
+
+      const participant = JSON.parse(localStorage.getItem("participant_info") || "{}");
+
+      const resultScenario1 = {
+        scenario: "Scenario 1",
+        pid: localStorage.getItem("pid") || (participant.fullName || ""),
+        group: participant.group || "",
+        tasks: tasksSummary
+      };
+
+      localStorage.setItem("result_scenario1", JSON.stringify(resultScenario1));
+
       alert(`🎉 ท่านทำครบ Task ${totalTasks}/${totalTasks} แล้ว\nกดตกลงเพื่อไปยัง Scenario 2`);
       window.location.href = "../scenario2/instruction-sc2.html";
     }
