@@ -54,11 +54,11 @@
     document.getElementById("downloadBtn").addEventListener("click", exportExcel);
 
     function exportExcel() {
-      // ผลรวม Scenario 1 / 2 (ใช้เป็น flag + แหล่ง PID / group)
-      var s1 = JSON.parse(localStorage.getItem("result_scenario1") || "null");
-      var s2 = JSON.parse(localStorage.getItem("result_scenario2") || "null");
+      // ==== โหลดข้อมูลหลักจาก localStorage ====
+      var s1  = JSON.parse(localStorage.getItem("result_scenario1") || "null");
+      var s2  = JSON.parse(localStorage.getItem("result_scenario2") || "null");
       var participant = JSON.parse(localStorage.getItem("participant_info") || "null");
-      var sus = JSON.parse(localStorage.getItem("sus_result") || "null");
+      var sus   = JSON.parse(localStorage.getItem("sus_result") || "null");
       var pssuq = JSON.parse(localStorage.getItem("pssuq_result") || "null");
 
       if (!s1 || !s2) {
@@ -66,12 +66,14 @@
         return;
       }
 
-      var pidValue =
+      // ==== ชื่อผู้เข้าร่วม (ใช้แทน PID) ====
+      var fullNameValue =
+        (participant && participant.fullName) ||
         (s1 && s1.pid) ||
         (s2 && s2.pid) ||
-        (participant && participant.fullName) ||
         "";
 
+      // ==== ค่า group ดิบจากหลายแหล่ง ====
       var groupValueRaw =
         (s1 && s1.group) ||
         (s2 && s2.group) ||
@@ -79,9 +81,30 @@
         localStorage.getItem("group") ||
         "";
 
-      var groupValue = String(groupValueRaw);
+      var groupValue = String(groupValueRaw || "");
+      var cleanGroup = groupValue.replace(/\s+/g, "").toLowerCase();
 
-      // ====== Scenario 1: รายละเอียดทุก trial จาก 3 task ======
+      // ==== logic แยกกลุ่มคุ้นเคย / ไม่คุ้นเคย ====
+      var isGroup1;
+      if (cleanGroup.indexOf("ไม่คุ้นเคย") !== -1) {
+        // ถ้ามีคำว่า "ไม่คุ้นเคย" ชัดเจน → กลุ่ม 2
+        isGroup1 = false;
+      } else if (cleanGroup.indexOf("คุ้นเคย") !== -1) {
+        // มีคำว่า "คุ้นเคย" แต่ไม่มี "ไม่" นำหน้า → กลุ่ม 1
+        isGroup1 = true;
+      } else if (
+        cleanGroup === "1" ||
+        cleanGroup === "group1" ||
+        cleanGroup === "กลุ่มที่1" ||
+        cleanGroup === "well-being"
+      ) {
+        isGroup1 = true;
+      } else {
+        // ที่เหลือ (2, non-user ฯลฯ) → กลุ่ม 2
+        isGroup1 = false;
+      }
+
+      // ==== Scenario 1: trial-level data จาก 3 task ====
       var ledTrials   = JSON.parse(localStorage.getItem("scenario1_data_LED") || "[]");
       var soundTrials = JSON.parse(localStorage.getItem("scenario1_data_Sound") || "[]");
       var vibTrials   = JSON.parse(localStorage.getItem("scenario1_data_Vibration") || "[]");
@@ -90,7 +113,7 @@
         .concat(ledTrials, soundTrials, vibTrials)
         .map(function(t) {
           return {
-            PID: pidValue,
+            FullName: fullNameValue,
             GroupRaw: groupValue,
             Scenario: "Scenario 1 (การรับรู้สัญญาณ)",
             Task: t.task || "",
@@ -103,12 +126,11 @@
           };
         });
 
-      // ====== Scenario 2: แถวละ 1 ภาพ + click logs เป็น JSON ======
+      // ==== Scenario 2: ภาพละ 1 แถว + click logs ====
       var s2Trials = (s2 && Array.isArray(s2.trials)) ? s2.trials : [];
-
       var s2Rows = s2Trials.map(function(tr) {
         return {
-          PID: pidValue,
+          FullName: fullNameValue,
           GroupRaw: groupValue,
           Scenario: "Scenario 2 (ความเข้าใจต่ออินเทอร์เฟซ)",
           Image: tr.image || "",
@@ -121,19 +143,18 @@
         };
       });
 
-      // รวมเป็นตารางใหญ่ต่อคน (Scenario 1 + Scenario 2)
       var allRows = s1TrialsAll.concat(s2Rows);
 
-      // ====== โหลดข้อมูลสะสมเดิม (หลายคน) ======
-      var g1 = JSON.parse(localStorage.getItem("excel_group1") || "[]");
-      var g2 = JSON.parse(localStorage.getItem("excel_group2") || "[]");
+      // ==== ดึงข้อมูลสะสมเดิมของแต่ละกลุ่ม แล้วลบ field PID ทิ้งเผื่อมีของเก่า ====
+      function stripPID(row) {
+        if (row && row.PID !== undefined) {
+          delete row.PID;
+        }
+        return row;
+      }
 
-      // กลุ่ม 1: 1 / Well-being / มีคำว่า "คุ้นเคย" / "กลุ่มที่ 1"
-      var isGroup1 =
-        groupValue === "1" ||
-        groupValue === "Well-being" ||
-        groupValue.indexOf("คุ้นเคย") !== -1 ||
-        groupValue.indexOf("กลุ่มที่ 1") !== -1;
+      var g1 = JSON.parse(localStorage.getItem("excel_group1") || "[]").map(stripPID);
+      var g2 = JSON.parse(localStorage.getItem("excel_group2") || "[]").map(stripPID);
 
       if (isGroup1) {
         g1 = g1.concat(allRows);
@@ -141,11 +162,11 @@
         g2 = g2.concat(allRows);
       }
 
-      // เซฟข้อมูลสะสมกลับลง localStorage
       localStorage.setItem("excel_group1", JSON.stringify(g1));
       localStorage.setItem("excel_group2", JSON.stringify(g2));
 
-      // ====== สร้างข้อมูล META: Screening + SUS + PSSUQ (1 แถวต่อคน) ======
+      // ==== เตรียมข้อมูล META: Screening + SUS + PSSUQ ====
+
       var susAnswers = (sus && Array.isArray(sus.answers)) ? sus.answers : [];
       var pssAnswers = (pssuq && Array.isArray(pssuq.answers)) ? pssuq.answers : [];
 
@@ -153,7 +174,7 @@
         return (arr && arr.length > idx) ? arr[idx] : "";
       }
 
-      // คำนวณ SUS Score (ตามสูตรมาตรฐาน 0–100)
+      // คำนวณ SUS Score (0–100)
       var susScore = "";
       if (susAnswers.length === 10) {
         var susSum = 0;
@@ -161,11 +182,9 @@
           var v = Number(susAnswers[i]);
           if (isNaN(v)) continue;
           if ((i + 1) % 2 === 1) {
-            // ข้อเลขคี่
-            susSum += (v - 1);
+            susSum += (v - 1);     // ข้อเลขคี่
           } else {
-            // ข้อเลขคู่
-            susSum += (5 - v);
+            susSum += (5 - v);     // ข้อเลขคู่
           }
         }
         susScore = (susSum * 2.5).toFixed(2);
@@ -188,26 +207,26 @@
         }
       }
 
+      // meta row: เรียงให้ FullName เป็นคอลัมน์แรก และไม่มี PID
       var metaRow = {
-        PID: pidValue,
+        FullName: fullNameValue,
         GroupRaw: groupValue,
         GroupLabel: isGroup1 ? "Group 1 (คุ้นเคย)" : "Group 2 (ไม่คุ้นเคย)",
 
-        FullName: participant && participant.fullName ? participant.fullName : "",
-        Age: participant && participant.age != null ? participant.age : "",
+        Age:    participant && participant.age    != null ? participant.age    : "",
         Gender: participant && participant.gender ? participant.gender : "",
         UsedWearable: participant && participant.usedWearable ? participant.usedWearable : "",
-        UsageFreq: participant && participant.usageFreq ? participant.usageFreq : "",
+        UsageFreq:    participant && participant.usageFreq    ? participant.usageFreq    : "",
 
-        SUS_Q1: getVal(susAnswers, 0),
-        SUS_Q2: getVal(susAnswers, 1),
-        SUS_Q3: getVal(susAnswers, 2),
-        SUS_Q4: getVal(susAnswers, 3),
-        SUS_Q5: getVal(susAnswers, 4),
-        SUS_Q6: getVal(susAnswers, 5),
-        SUS_Q7: getVal(susAnswers, 6),
-        SUS_Q8: getVal(susAnswers, 7),
-        SUS_Q9: getVal(susAnswers, 8),
+        SUS_Q1:  getVal(susAnswers, 0),
+        SUS_Q2:  getVal(susAnswers, 1),
+        SUS_Q3:  getVal(susAnswers, 2),
+        SUS_Q4:  getVal(susAnswers, 3),
+        SUS_Q5:  getVal(susAnswers, 4),
+        SUS_Q6:  getVal(susAnswers, 5),
+        SUS_Q7:  getVal(susAnswers, 6),
+        SUS_Q8:  getVal(susAnswers, 7),
+        SUS_Q9:  getVal(susAnswers, 8),
         SUS_Q10: getVal(susAnswers, 9),
         SUS_Score: susScore,
         SUS_CreatedAt: sus && sus.createdAt ? sus.createdAt : "",
@@ -232,12 +251,12 @@
         PSSUQ_CreatedAt: pssuq && pssuq.createdAt ? pssuq.createdAt : ""
       };
 
-      // โหลด/อัปเดต meta เก่าจาก localStorage (สะสมหลายคน)
-      var metaAll = JSON.parse(localStorage.getItem("excel_meta") || "[]");
+      // metaAll เดิม: strip PID เผื่อมีของเก่า
+      var metaAll = JSON.parse(localStorage.getItem("excel_meta") || "[]").map(stripPID);
       metaAll.push(metaRow);
       localStorage.setItem("excel_meta", JSON.stringify(metaAll));
 
-      // ====== สร้างไฟล์ Excel ที่มี 3 ชีท ======
+      // ==== สร้างไฟล์ Excel 3 ชีท: Group1, Group2, Meta ====
       var wb = XLSX.utils.book_new();
       var ws1 = XLSX.utils.json_to_sheet(g1);
       var ws2 = XLSX.utils.json_to_sheet(g2);
