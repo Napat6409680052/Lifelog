@@ -168,7 +168,7 @@
       nextMsg.textContent = `✅ จบ Task ${currentIndex + 1}/${totalTasks} แล้ว → กำลังไป Task ถัดไป (${nextTask})...`;
       setTimeout(()=> window.location.href = fileMap[nextTask], 1000);
     } else {
-      // 🎯 ไม่มี task ถัดไป = จบ Scenario 1 → รวมผลทุก task เป็น result_scenario1
+      // ถ้าไม่มี task ถัดไป = จบ Scenario 1 → รวมผลทุก task เป็น result_scenario1
 
       const ledData   = JSON.parse(localStorage.getItem("scenario1_data_LED") || "[]");
       const soundData = JSON.parse(localStorage.getItem("scenario1_data_Sound") || "[]");

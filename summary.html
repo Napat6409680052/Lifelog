@@ -54,7 +54,7 @@
     document.getElementById("downloadBtn").addEventListener("click", exportExcel);
 
     function exportExcel() {
-      // ==== โหลดข้อมูลหลักจาก localStorage ====
+      // โหลดข้อมูลหลักจาก localStorage 
       var s1  = JSON.parse(localStorage.getItem("result_scenario1") || "null");
       var s2  = JSON.parse(localStorage.getItem("result_scenario2") || "null");
       var participant = JSON.parse(localStorage.getItem("participant_info") || "null");
@@ -66,14 +66,14 @@
         return;
       }
 
-      // ==== ชื่อผู้เข้าร่วม (ใช้แทน PID) ====
+      // ชื่อผู้เข้าร่วม (ใช้แทน PID) 
       var fullNameValue =
         (participant && participant.fullName) ||
         (s1 && s1.pid) ||
         (s2 && s2.pid) ||
         "";
 
-      // ==== ค่า group ดิบจากหลายแหล่ง ====
+      //  ค่า group ดิบจากหลายแหล่ง 
       var groupValueRaw =
         (s1 && s1.group) ||
         (s2 && s2.group) ||
@@ -104,7 +104,7 @@
         isGroup1 = false;
       }
 
-      // ==== Scenario 1: trial-level data จาก 3 task ====
+      //  Scenario 1: trial-level data จาก 3 task 
       var ledTrials   = JSON.parse(localStorage.getItem("scenario1_data_LED") || "[]");
       var soundTrials = JSON.parse(localStorage.getItem("scenario1_data_Sound") || "[]");
       var vibTrials   = JSON.parse(localStorage.getItem("scenario1_data_Vibration") || "[]");
@@ -126,7 +126,7 @@
           };
         });
 
-      // ==== Scenario 2: ภาพละ 1 แถว + click logs ====
+      //  Scenario 2: ภาพละ 1 แถว + click logs 
       var s2Trials = (s2 && Array.isArray(s2.trials)) ? s2.trials : [];
       var s2Rows = s2Trials.map(function(tr) {
         return {
@@ -145,7 +145,7 @@
 
       var allRows = s1TrialsAll.concat(s2Rows);
 
-      // ==== ดึงข้อมูลสะสมเดิมของแต่ละกลุ่ม แล้วลบ field PID ทิ้งเผื่อมีของเก่า ====
+      // ดึงข้อมูลสะสมเดิมของแต่ละกลุ่ม แล้วลบ field PID ทิ้งเผื่อมีของเก่า 
       function stripPID(row) {
         if (row && row.PID !== undefined) {
           delete row.PID;
@@ -256,7 +256,7 @@
       metaAll.push(metaRow);
       localStorage.setItem("excel_meta", JSON.stringify(metaAll));
 
-      // ==== สร้างไฟล์ Excel 3 ชีท: Group1, Group2, Meta ====
+      // สร้างไฟล์ Excel 3 ชีท: Group1, Group2, Meta 
       var wb = XLSX.utils.book_new();
       var ws1 = XLSX.utils.json_to_sheet(g1);
       var ws2 = XLSX.utils.json_to_sheet(g2);

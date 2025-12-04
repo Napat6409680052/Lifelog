@@ -20,7 +20,7 @@
     <p><strong>Task <span id="taskOrder">1/4</span></strong></p>
     <p><strong>Trial <span id="trialNum">1</span> / 20</strong></p>
 
-    <!-- ✅ ข้อความสถานะ 2.5 วิ (คงไว้ตามเดิม) -->
+    <!-- ข้อความสถานะ 2.5 วิ -->
     <p id="statusText" class="status-text">Trial นี้กำลังเริ่มแสดงสัญญาณ โปรดรอสักครู่...</p>
 
     <hr>
@@ -37,7 +37,7 @@
       <button class="answer" data-choice="4">ไม่มีการทำงาน</button>
     </div>
 
-    <!-- ✅ ความมั่นใจแบบ Inline + ปุ่มตกลง -->
+    <!-- ความมั่นใจแบบ Inline + ปุ่มตกลง -->
     <div id="confidenceArea" class="center" style="display:none;margin-top:22px;">
       <p>คุณมั่นใจแค่ไหนว่ารับรู้ได้ถูกต้อง?<br>( [1] ไม่มั่นใจเลย – [5] มั่นใจที่สุด )</p>
       <div id="confButtons" style="margin:10px 0;">
@@ -167,12 +167,12 @@
     };
 
     if (nextTask) {
-      // ✅ ยังมี task ถัดไป → ไปหน้าถัดไปตามละติน
+      // ถ้ายังมี task ถัดไป → ไปหน้าถัดไปตามละติน
       nextMsg.style.display = "block";
       nextMsg.textContent = `✅ จบ Task ${currentIndex + 1}/${totalTasks} แล้ว → กำลังไป Task ถัดไป (${nextTask})...`;
       setTimeout(()=> window.location.href = fileMap[nextTask], 1000);
     } else {
-      // 🎯 ไม่มี task ถัดไป = จบ Scenario 1 → รวมผลทุก task เป็น result_scenario1
+      // ถ้าไม่มี task ถัดไป = จบ Scenario 1 → รวมผลทุก task เป็น result_scenario1
 
       const ledData   = JSON.parse(localStorage.getItem("scenario1_data_LED") || "[]");
       const soundData = JSON.parse(localStorage.getItem("scenario1_data_Sound") || "[]");

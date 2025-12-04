@@ -65,11 +65,11 @@
       "original.png":   null // รูปนี้ถือว่า "ไม่มีปุ่มชัดเจน"
     };
 
-    // ✅ พยายามอ่านลำดับจาก instruction-sc2 (ละตินออร์เดอร์)
+    // อ่านลำดับจาก instruction-sc2 (ละตินออร์เดอร์)
     const storedOrder = JSON.parse(localStorage.getItem("sc2_trialOrder") || "null");
     const trialOrder = Array.isArray(storedOrder) && storedOrder.length
       ? storedOrder
-      : images.slice().sort(() => Math.random() - 0.5); // เผื่อกรณีเข้าหน้านี้ตรง ๆ
+      : images.slice().sort(() => Math.random() - 0.5); // เผื่อกรณีเข้าหน้านี้ตรงๆ
 
     let current = 0;
     let correct = 0;
@@ -175,7 +175,7 @@
         alert("➡️ กำลังเปลี่ยนไปภาพถัดไป...");
         loadImage();
       } else {
-        // ✅ ครบทุกภาพแล้ว → เก็บผลลง localStorage แล้วไป SUS
+        // ครบทุกภาพแล้ว → เก็บผลลง localStorage แล้วไป SUS
         const result = {
           scenario: "Scenario 2",
           trials: resultsPerImage
